@@ -10,6 +10,7 @@ import lwjglutils.ShaderUtils;
 
 
 import org.lwjgl.glfw.GLFWKeyCallback;
+import org.lwjgl.glfw.GLFWScrollCallback;
 import org.lwjgl.opengl.GL11;
 import transforms.Camera;
 import transforms.Mat4PerspRH;
@@ -19,10 +20,8 @@ import transforms.Vec3D;
 
 import java.io.IOException;
 
+
 import static org.lwjgl.glfw.GLFW.*;
-//import static org.lwjgl.opengl.GL11.*;
-//import static org.lwjgl.opengl.GL11C.GL_FRONT_AND_BACK;
-import static org.lwjgl.opengl.GL11.GL_LIGHTING;
 import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 import static org.lwjgl.opengl.GL20.glUniform1f;
 import static org.lwjgl.opengl.GL20C.*;
@@ -40,7 +39,7 @@ public class Renderer extends AbstractRenderer{
 
 
     private OGLBuffers buffers;
-    private int viewLocation,projectionLocation,shaderProgramMain, locWave,shaderProgramToroid,typeLocation, projection = 2;
+    private int viewLocation,projectionLocation,shaderProgramMain, locWave,shaderProgramToroid,typeLocation, typeScale, projection = 1,toroid,juicer,ball,wave,coTex = 1,typecoTex;
 
     private Camera camera;
     private Mat4PerspRH persp;
@@ -49,7 +48,7 @@ public class Renderer extends AbstractRenderer{
     private boolean mousePressed;
     private double oldMx, oldMy;
 
-    float wave;
+    float  scale=1f;
     private OGLTexture2D textureFire, textureBricks,textureMosaic,textureBall8,texturePavement;
     private Mat4OrthoRH ortho;
 
@@ -67,7 +66,10 @@ public class Renderer extends AbstractRenderer{
         viewLocation = glGetUniformLocation(shaderProgramMain, "view");
         projectionLocation = glGetUniformLocation(shaderProgramMain, "projection");
         typeLocation = glGetUniformLocation(shaderProgramMain, "type");
-       // locWave = glGetUniformLocation(shaderProgramMain, "wave");
+        typeScale = glGetUniformLocation(shaderProgramMain, "scale");
+        typecoTex = glGetUniformLocation(shaderProgramMain, "coTex");
+
+
 
         camera = new Camera()
                 .withPosition(new Vec3D(10, 10, 6))
@@ -112,33 +114,12 @@ public class Renderer extends AbstractRenderer{
 
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glEnable( GL_LIGHTING );
 
         float[] ambientLight = {0f, 0f, 1f,0f };
-        //gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambientLight, 0);
 
         float[] specularLight = {1f, 0f, 0f,0f };
-       // glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, specularLight, 0);
-
 
         float[] diffuseLight = { 1f,0f,0f,0f };
-      //  glLightfv( GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuseLight, 0 );
-
-        wave = 1;
-
-     //   float[] light_position = new float[] { 15.0f, 25.0f, -10.0f,0.0f };
-     //   float[] ambientLight = { 0.0f, 0.0f, 0.0f, 0.0f };
-     //   float[] diffuseLight = { 1.0f,1.0f,1.0f,1.0f };
-     //   float[] specularLight = {1.0f, 1.0f, 1.0f,1.0f };
-
-    //    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight, 0);
-     //   glLightfv(GL_LIGHT0, GL_POSITION, light_position, 0);
-     //   glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight, 0);
-     //   glLightfv(GL_LIGHT0,GL_SPECULAR,specularLight, 0);
-      //  glTexEnvi(GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE);
-
-
-
 
 
         textureFire.bind(shaderProgramMain,"textureFire",0);
@@ -147,8 +128,8 @@ public class Renderer extends AbstractRenderer{
         textureBall8.bind(shaderProgramMain,"textureBall8",4);
         texturePavement.bind(shaderProgramMain,"texturePavement",3);
 
-
-        glUniform1f(locWave, (float) wave);
+        glUniform1f(typeScale,scale);
+        glUniform1f(typecoTex,coTex);
         glUniformMatrix4fv(viewLocation,false, camera.getViewMatrix().floatArray());
         glUniform3f (typeLocation,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
 
@@ -158,20 +139,30 @@ public class Renderer extends AbstractRenderer{
         else if(projection == 2){
         glUniformMatrix4fv(projectionLocation, false,ortho.floatArray());}
 
-        glUniform1f(typeLocation,0f);
-        buffers.draw(GL_TRIANGLES, shaderProgramMain);
-        glUniform1f(typeLocation,0.1f);
-        buffers.draw(GL_TRIANGLES, shaderProgramMain);
+      //  glUniform1f(typeLocation,0f);
+       // buffers.draw(GL_TRIANGLES, shaderProgramMain);
+      //  glUniform1f(typeLocation,0.1f);
+     //   buffers.draw(GL_TRIANGLES, shaderProgramMain);
+       if (wave == 1){
         glUniform1f(typeLocation,1f);
-        buffers.draw(GL_TRIANGLES, shaderProgramMain);
+        buffers.draw(GL_TRIANGLES, shaderProgramMain);}
+
+        if (toroid == 1){
         glUniform1f(typeLocation,2f);
-        buffers.draw(GL_TRIANGLES, shaderProgramMain);
+        buffers.draw(GL_TRIANGLES, shaderProgramMain);}
+
+        if (juicer == 1){
         glUniform1f(typeLocation,3f);
-        buffers.draw(GL_TRIANGLES, shaderProgramMain);
+        buffers.draw(GL_TRIANGLES, shaderProgramMain);}
+
+        if (ball == 1){
         glUniform1f(typeLocation,4f);
-        buffers.draw(GL_TRIANGLES, shaderProgramMain);
-        glUniform1f(typeLocation,5f);
-        buffers.draw(GL_TRIANGLES, shaderProgramMain);
+        buffers.draw(GL_TRIANGLES, shaderProgramMain);}
+
+      //  glUniform1f(typeLocation,5f);
+      //  buffers.draw(GL_TRIANGLES, shaderProgramMain);
+      //  glUniform1f(typeLocation,6f);
+       // buffers.draw(GL_TRIANGLES, shaderProgramMain);
 
 
     }
@@ -252,7 +243,32 @@ public class Renderer extends AbstractRenderer{
                         if (projection == 1){
                         projection = 2;}
                         else {projection = 1;}
+                        break;
+                    case GLFW_KEY_C:
+                        if (coTex == 1){
+                            coTex = 0;}
+                        else {coTex = 1;}
+                        break;
 
+                    case GLFW_KEY_1:
+                        if (wave == 1){
+                            wave = 0;}
+                        else {wave  = 1;}
+                        break;
+                    case GLFW_KEY_2:
+                        if (toroid == 1){
+                            toroid = 0;}
+                        else {toroid  = 1;}
+                        break;
+                    case GLFW_KEY_3:
+                        if (juicer == 1){
+                            juicer = 0;}
+                        else {juicer  = 1;}
+                        break;
+                    case GLFW_KEY_4:
+                        if (ball == 1){
+                            ball = 0;}
+                        else {ball  = 1;}
                         break;
 
                 }
@@ -264,6 +280,18 @@ public class Renderer extends AbstractRenderer{
     @Override
     public GLFWKeyCallback getKeyCallback() {
         return keyCallback;
+    }
+
+    protected GLFWScrollCallback scrollCallback = new GLFWScrollCallback() {
+        @Override public void invoke (long window, double dx, double dy) {
+
+            scale = (scale + (float) dy)/1;
+
+
+        }
+    };
+    public GLFWScrollCallback getScrollCallback() {
+        return scrollCallback;
     }
 
 }

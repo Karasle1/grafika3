@@ -1,17 +1,18 @@
 #version 150
 in vec2 inPosition; // input from the vertex buffer
 in vec3 lightPosition;
+
 out vec2 outPosition;
-out vec3 normala,lightDirection,viewDirection;
+out vec3 normala,lightDirection,viewDirection,color;
 out vec2 texCoord;
-out float typeShape,attenuation;
-uniform float wave;
-uniform float type;
+out float typeShape,attenuation,coTexOut;
+//uniform float wave;
+uniform float type,scale,coTex;
 uniform mat4 view;
 uniform mat4 projection;
 vec3 finalPosition,tecU, tecV;
 vec2 position;
-float a = 3,b=1, PI = 3.14159;
+float a = 3,b=1, PI = 3.14159, scale1;
 
 float getJuicer(vec2 vec){
 	return  0.5*cos(sqrt(20*position.x*position.x + 20*position.y*position.y));
@@ -39,6 +40,8 @@ vec3 getNormal(vec2 vec){
 }
 
 vec3 getToroid(vec2 vec){
+	a = a * scale;
+	b = b* scale;
 	float  x = cos(position.y)*(a + b*cos(position.x))-10.0;
 	float  y = sin(position.y)*(a + b*cos(position.x));
 	float  z = b*sin(position.x)+1.0;
@@ -60,7 +63,6 @@ vec3 getToroid(vec2 vec){
 	//0.f;
 	// Normala u x v
 //	normala = tecU * tecV;
-
 
 	return vec3(x, y, z);
 }
@@ -99,9 +101,11 @@ void main() {
 		typeShape = 0;
 
 	}
-	else if (type == 1){										//wave
-		 position = inPosition * 2 -1;
-
+	else if (type == 1){					//wave
+		if (scale <= 0)
+		{scale1 = 0;}
+		else {scale1 = scale;}
+   		 position = inPosition * 2 * scale1;
 		finalPosition = vec3(position,getWave(position));
 		finalPosition.x -=5;
 		finalPosition.y +=7;
@@ -116,9 +120,11 @@ void main() {
 		position.x -= 10;
 		finalPosition = getToroid(position);
 		normala = getNormal(position);
-		outPosition = position;
+		outPosition = inPosition;
 		texCoord = inPosition;
 		typeShape = 2;
+
+
 
 	}
 	else if (type == 3) {										//juicer
@@ -162,7 +168,8 @@ void main() {
 //	float dis = length(lightDirection);
 //	float attenuation = (1.0 / (1.0 + (0.01 * distance * distance)));
 
-
+	coTexOut = coTex;
 	vec4 pos4 = vec4(finalPosition,1.0);
+
 	gl_Position = projection * view * pos4;
 } 
