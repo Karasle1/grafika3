@@ -1,19 +1,23 @@
-package lvl2advanced.p01gui.p01simple;
-import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.*;
-import org.lwjgl.system.*;
+package p01simple;
 
-import java.nio.*;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GLUtil;
+import org.lwjgl.system.Configuration;
+import org.lwjgl.system.MemoryStack;
 
-import static org.lwjgl.glfw.Callbacks.*;
+import java.nio.IntBuffer;
+
+import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.system.MemoryStack.*;
-import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.system.MemoryStack.stackPush;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class LwjglWindow {
 
-	public static int WIDTH = 600;
-    public static int HEIGHT = 400;
+	public static int WIDTH = 1024;
+    public static int HEIGHT = 768;
 
     // The window handle
 	private long window;

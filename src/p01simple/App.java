@@ -1,4 +1,4 @@
-package lvl2advanced.p01gui.p01simple;
+package p01simple;
 
 
 public class App {
