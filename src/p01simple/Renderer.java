@@ -1,5 +1,7 @@
 package p01simple;
-
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import lwjglutils.OGLBuffers;
 import lwjglutils.OGLTexture2D;
@@ -19,6 +21,7 @@ import transforms.Vec3D;
 
 
 import java.io.IOException;
+import java.util.Date;
 
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -39,7 +42,7 @@ public class Renderer extends AbstractRenderer{
 
 
     private OGLBuffers buffers;
-    private int viewLocation,projectionLocation,shaderProgramMain, locWave,shaderProgramToroid,typeLocation, typeScale, projection = 1,toroid,juicer,ball,wave,coTex = 1,typecoTex;
+    private int viewLocation,projectionLocation,shaderProgramMain, locWave,shaderProgramToroid,typeLocation, typeScale, projection = 1,toroid,juicer,ball,wave,coTex = 1,typecoTex,locTime;
 
     private Camera camera;
     private Mat4PerspRH persp;
@@ -48,7 +51,8 @@ public class Renderer extends AbstractRenderer{
     private boolean mousePressed;
     private double oldMx, oldMy;
 
-    float  scale=1f;
+    int anim = 0;
+    float  scale=1f,time=1f,i=0.1f;
     private OGLTexture2D textureFire, textureBricks,textureMosaic,textureBall8,texturePavement;
     private Mat4OrthoRH ortho;
 
@@ -60,7 +64,8 @@ public class Renderer extends AbstractRenderer{
         OGLUtils.printJAVAparameters();
         OGLUtils.shaderCheck();
 
-        glClearColor(0.f, 0f, 0f, 0f);
+
+        glClearColor(0.1f, 0.1f, 0.1f, 0f);
         glPolygonMode(GL_FRONT_AND_BACK, GL11.GL_FILL);
         shaderProgramMain = ShaderUtils.loadProgram("/main");
         viewLocation = glGetUniformLocation(shaderProgramMain, "view");
@@ -68,6 +73,7 @@ public class Renderer extends AbstractRenderer{
         typeLocation = glGetUniformLocation(shaderProgramMain, "type");
         typeScale = glGetUniformLocation(shaderProgramMain, "scale");
         typecoTex = glGetUniformLocation(shaderProgramMain, "coTex");
+        locTime = glGetUniformLocation(shaderProgramMain, "time");
 
 
 
@@ -115,6 +121,7 @@ public class Renderer extends AbstractRenderer{
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
         float[] ambientLight = {0f, 0f, 1f,0f };
 
         float[] specularLight = {1f, 0f, 0f,0f };
@@ -130,6 +137,7 @@ public class Renderer extends AbstractRenderer{
 
         glUniform1f(typeScale,scale);
         glUniform1f(typecoTex,coTex);
+        glUniform1f(locTime,time);
         glUniformMatrix4fv(viewLocation,false, camera.getViewMatrix().floatArray());
         glUniform3f (typeLocation,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
 
@@ -163,7 +171,23 @@ public class Renderer extends AbstractRenderer{
       //  buffers.draw(GL_TRIANGLES, shaderProgramMain);
       //  glUniform1f(typeLocation,6f);
        // buffers.draw(GL_TRIANGLES, shaderProgramMain);
+        //Date date = new Date();
+       // time = date.;
+if (anim==1) {
+    if (i < 3f) {
+        time = time + 0.01f;
+        i = i + 0.01f;
+    } else if (i>=3f && i<=7f) {
+        time = time - 0.01f;
+        i = i + 0.01f;
+    } else {i = 0.01f;
+            time = 0f;}
+}
 
+//else
+//{
+ //   i = 0f;
+//}
 
     }
 
@@ -248,6 +272,11 @@ public class Renderer extends AbstractRenderer{
                         if (coTex == 1){
                             coTex = 0;}
                         else {coTex = 1;}
+                        break;
+                    case GLFW_KEY_I:
+                        if (anim == 1){
+                            anim = 0;}
+                        else {anim  = 1;}
                         break;
 
                     case GLFW_KEY_1:

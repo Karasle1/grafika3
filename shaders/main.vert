@@ -1,4 +1,5 @@
 #version 150
+
 in vec2 inPosition; // input from the vertex buffer
 in vec3 lightPosition;
 
@@ -7,23 +8,28 @@ out vec3 normala,lightDirection,viewDirection,color;
 out vec2 texCoord;
 out float typeShape,attenuation,coTexOut;
 //uniform float wave;
-uniform float type,scale,coTex;
+uniform float type,scale,coTex,time;
+uniform int tim;
 uniform mat4 view;
 uniform mat4 projection;
 vec3 finalPosition,tecU, tecV;
 vec2 position;
 float a = 3,b=1, PI = 3.14159, scale1;
+mat3 modelView;
 
 float getJuicer(vec2 vec){
-	return  0.5*cos(sqrt(20*position.x*position.x + 20*position.y*position.y));
+	return  0.5*cos(sqrt((5+time*10)*position.x*position.x + (5+time*10)*position.y*position.y));
+
+
 }
 
 float getWave(vec2 vec){
-//	position.y -= 5.0;
+//	position.y += 5;
 
 	//tecne vektory u a v
-	float parcX=position.y;
-	float parcY=position.x;
+	float tecUecU=position.y;
+	float tecVY=position.x;
+	normala = cross (tecU,tecV);
 
 	return position.x*position.y;
 
@@ -32,37 +38,34 @@ vec3 getNormal(vec2 vec){
 
 	vec3 normal;
 	float dist = sqrt((position.x * position.x) + (position.y * position.y) );
+
 	normal.x = 1 * PI * sin(dist/(dist*position.x));
 	normal.y = 1 * PI * sin(dist/(dist*position.y));
 	normal.z = 1.0;
+
 	return normal;
 
 }
 
 vec3 getToroid(vec2 vec){
-	a = a * scale;
-	b = b* scale;
+
+	a = (a+time) * scale;
+	b = b * scale;
 	float  x = cos(position.y)*(a + b*cos(position.x))-10.0;
 	float  y = sin(position.y)*(a + b*cos(position.x));
 	float  z = b*sin(position.x)+1.0;
 
 	// tecne vektory pomoci parcialni derivace
 
-	//tecU.x = dFdx(cos(position.y)*(a + b*cos(position.x))-10.0);
-	//(-b * cos(position.y) * sin(position.x));
-	//tecU.y = dFdx(sin(position.y)*(a + b*cos(position.x)));
-	//(-b * sin(position.y) * sin(position.x));
-//	tecU.z = dFdx(b*sin(position.x)+1.0);
-	//(b * cos(position.x));
+	tecU.x = (-b * cos(position.y) * sin(position.x));
+	tecU.y = (-b * sin(position.y) * sin(position.x));
+	tecU.z = (b * cos(position.x));
 
-	//tecV.x = dFdy(cos(position.y)*(a + b*cos(position.x))-10.0);
-	//(-sin(position.y)) * (a+b * cos(position.x));
-	//tecV.y = dFdy(sin(position.y)*(a + b*cos(position.x)));
-	// (a + (b*cos(position.x))) * cos(position.y);
-//	tecV.z = dFdy(b*sin(position.x)+1.0);
-	//0.f;
-	// Normala u x v
-//	normala = tecU * tecV;
+	tecV.x = (-sin(position.y)) * (a+b * cos(position.x));
+	tecV.y = (a + (b*cos(position.x))) * cos(position.y);
+	tecV.z = 0.f;
+
+	normala = cross(tecU, tecV);
 
 	return vec3(x, y, z);
 }
@@ -71,10 +74,22 @@ vec3 getSphere(vec2 vec){
 	position.y += 5;
 	float az = vec.x * PI;
 	float ze = vec.y * PI;
-	float r = 1;
+	float r = 1 + time + scale;
 	float x = r * cos(az)* cos(ze);
-	float y = 1 *r * sin(az) * cos(ze);
-	float z = 1 * r * sin(ze);
+	float y = 1 * r * sin(az) * cos(ze);
+	float z = 0.f;
+
+	tecU.x = (-r * sin(az) * cos(ze));
+	tecU.y = (r * cos(az) * cos(ze));
+	tecU.z = (r * cos(ze));
+
+	tecV.x = (-r * cos(az) * sin(ze));
+	tecV.y = (-r * sin(az) * sin(ze));
+	tecV.z = (r * cos(ze));
+
+	normala = cross(tecU, tecV);
+
+
 	return vec3(x,y,z);
 }
 
@@ -105,7 +120,7 @@ void main() {
 		if (scale <= 0)
 		{scale1 = 0;}
 		else {scale1 = scale;}
-   		 position = inPosition * 2 * scale1;
+		position = inPosition * 2 * scale1;
 		finalPosition = vec3(position,getWave(position));
 		finalPosition.x -=5;
 		finalPosition.y +=7;
@@ -118,8 +133,8 @@ void main() {
 		position = inPosition * 7 -6;
 		position.y -= 10;
 		position.x -= 10;
-		finalPosition = getToroid(position);
-		normala = getNormal(position);
+		finalPosition = getToroid(position).xyz;
+	//	normala = getNormal(inPosition);
 		outPosition = inPosition;
 		texCoord = inPosition;
 		typeShape = 2;
@@ -143,7 +158,7 @@ void main() {
 
 		position = inPosition * 2 -1;
 		finalPosition = getSphere(position);
-		normala = getNormal(position);
+	//	normala = getNormal(position);
 		finalPosition.x+=5;
 		finalPosition.y+=5;
 		outPosition = position;
@@ -170,6 +185,7 @@ void main() {
 
 	coTexOut = coTex;
 	vec4 pos4 = vec4(finalPosition,1.0);
-
+	gl_NormalMatrix  = view * ;
+	normala = transpose(inverse(normal))*normala;
 	gl_Position = projection * view * pos4;
 } 
