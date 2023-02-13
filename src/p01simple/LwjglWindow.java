@@ -21,7 +21,7 @@ public class LwjglWindow {
 
     // The window handle
 	private long window;
-	private AbstractRenderer renderer;
+	private p01simple.AbstractRenderer renderer;
 	
     private static boolean DEBUG = false;
 
@@ -36,15 +36,15 @@ public class LwjglWindow {
         }
     }
 
-	public LwjglWindow(AbstractRenderer renderer) {
+	public LwjglWindow(p01simple.AbstractRenderer renderer) {
 		this(WIDTH, HEIGHT, renderer, false);
 	}
 
-	public LwjglWindow(AbstractRenderer renderer, boolean debug) {
+	public LwjglWindow(p01simple.AbstractRenderer renderer, boolean debug) {
 		this(WIDTH, HEIGHT, renderer, debug);
 	}
 
-	public LwjglWindow(int width, int height, AbstractRenderer renderer, boolean debug) {
+	public LwjglWindow(int width, int height, p01simple.AbstractRenderer renderer, boolean debug) {
 		this.renderer = renderer;
 		DEBUG = debug;
 		WIDTH = width;

@@ -1,4 +1,4 @@
-#version 150
+#version 330
 
 in vec2 inPosition; // input from the vertex buffer
 in vec3 lightPosition;
@@ -7,7 +7,6 @@ out vec2 outPosition;
 out vec3 normala,lightDirection,viewDirection,color;
 out vec2 texCoord;
 out float typeShape,attenuation,coTexOut;
-//uniform float wave;
 uniform float type,scale,coTex,time;
 uniform int tim;
 uniform mat4 view;
@@ -68,7 +67,7 @@ vec3 getToroid(vec2 vec){
 	normala = cross(tecU, tecV);
 
 	return vec3(x, y, z);
-}
+
 
 vec3 getSphere(vec2 vec){
 	position.y += 5;
@@ -185,7 +184,7 @@ void main() {
 
 	coTexOut = coTex;
 	vec4 pos4 = vec4(finalPosition,1.0);
-	gl_NormalMatrix  = view * ;
+	//gl_NormalMatrix  = view * ;
 	normala = transpose(inverse(normal))*normala;
 	gl_Position = projection * view * pos4;
 } 

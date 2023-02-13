@@ -38,7 +38,7 @@ import org.lwjgl.glfw.GLFWMouseButtonCallback;
 * @version 2.0
 * @since 2019-09-02
 */
-public class Renderer extends AbstractRenderer{
+public class Renderer extends p01simple.AbstractRenderer {
 
 
     private OGLBuffers buffers;
@@ -68,8 +68,11 @@ public class Renderer extends AbstractRenderer{
         glClearColor(0.1f, 0.1f, 0.1f, 0f);
         glPolygonMode(GL_FRONT_AND_BACK, GL11.GL_FILL);
         shaderProgramMain = ShaderUtils.loadProgram("/main");
+        shaderProgramToroid = ShaderUtils.loadProgram("/toroid");
         viewLocation = glGetUniformLocation(shaderProgramMain, "view");
+        viewLocation = glGetUniformLocation(shaderProgramToroid, "view");
         projectionLocation = glGetUniformLocation(shaderProgramMain, "projection");
+        projectionLocation = glGetUniformLocation(shaderProgramToroid, "projection");
         typeLocation = glGetUniformLocation(shaderProgramMain, "type");
         typeScale = glGetUniformLocation(shaderProgramMain, "scale");
         typecoTex = glGetUniformLocation(shaderProgramMain, "coTex");
@@ -84,7 +87,7 @@ public class Renderer extends AbstractRenderer{
 
         persp = new Mat4PerspRH(
                 Math.PI / 3f,
-                LwjglWindow.HEIGHT / (float) LwjglWindow.WIDTH,
+                p01simple.LwjglWindow.HEIGHT / (float) p01simple.LwjglWindow.WIDTH,
                 0.1,
                 50
         );
@@ -99,7 +102,7 @@ public class Renderer extends AbstractRenderer{
        lightPosition =new Vec3D(5.f,5.f,5.f);
 
 
-    buffers = GridFactory.generateGrid(50,50);
+    buffers = p01simple.GridFactory.generateGrid(50,50);
 
         try {
             textureFire = new OGLTexture2D("./textures/mapFire.jpg");
@@ -157,7 +160,7 @@ public class Renderer extends AbstractRenderer{
 
         if (toroid == 1){
         glUniform1f(typeLocation,2f);
-        buffers.draw(GL_TRIANGLES, shaderProgramMain);}
+        buffers.draw(GL_TRIANGLES, shaderProgramToroid);}
 
         if (juicer == 1){
         glUniform1f(typeLocation,3f);
@@ -169,8 +172,8 @@ public class Renderer extends AbstractRenderer{
 
       //  glUniform1f(typeLocation,5f);
       //  buffers.draw(GL_TRIANGLES, shaderProgramMain);
-      //  glUniform1f(typeLocation,6f);
-       // buffers.draw(GL_TRIANGLES, shaderProgramMain);
+      /// glUniform1f(typeLocation,6f);
+      //  buffers.draw(GL_TRIANGLES, shaderProgramMain);
         //Date date = new Date();
        // time = date.;
 if (anim==1) {
@@ -213,8 +216,8 @@ if (anim==1) {
         public void invoke(long window, double x, double y) {
 
             if (mousePressed) {
-                camera = camera.addAzimuth((Math.PI / 2 * (oldMx - x)/LwjglWindow.WIDTH));
-                camera = camera.addZenith((Math.PI / 2 * (oldMy - y)/LwjglWindow.HEIGHT));
+                camera = camera.addAzimuth((Math.PI / 2 * (oldMx - x)/ p01simple.LwjglWindow.WIDTH));
+                camera = camera.addZenith((Math.PI / 2 * (oldMy - y)/ p01simple.LwjglWindow.HEIGHT));
                 oldMx = x;
                 oldMy = y;
             }

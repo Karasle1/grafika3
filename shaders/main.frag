@@ -1,4 +1,4 @@
-#version 150
+#version 330
 in vec2 outPosition;
 in vec2 texCoord;
 in float typeShape,attenuation,coTexOut;
@@ -25,6 +25,7 @@ void main() {
 
 		if (coTexOut == 0){
 			outColor =  outColor +  vec4(outPosition.rg, 0.0, 1.0);
+
 		}
 		else
 		{
@@ -40,7 +41,8 @@ void main() {
 		outColor.a = 1.0;
 
 		if (coTexOut == 0){
-			outColor = outColor * vec4(outPosition.rg, 0.0, 1.0);
+		//	outColor = outColor * vec4(outPosition.rg, 0.0, 1.0);
+			outColor = vec4(nNormala,1.0);
 		}
 		else
 		{
@@ -76,7 +78,8 @@ void main() {
 		outColor.rgb = vec3(f);
 		outColor.a = 1.0;
 		if (coTexOut == 0){
-			outColor =  outColor +  vec4(outPosition.rg, 0.0, 1.0);
+		//	outColor =  outColor +  vec4(outPosition.rg, 0.0, 1.0);
+			outColor = vec4(nNormala,1.0);
 		}
 		else
 		{
