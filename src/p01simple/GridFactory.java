@@ -13,6 +13,7 @@ public class GridFactory {
             for (int j = 0; j < m; j++) {
                 vb[index++] = j / (float) (m - 1);
                 vb[index++] = i / (float) (n - 1);
+             //  vb[index++] = 1;
 
             }
         }

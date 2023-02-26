@@ -46,28 +46,28 @@ vec3 getNormal(vec2 vec){
 
 }
 
-vec3 getToroid(vec2 vec){
+//vec3 getToroid(vec2 vec){
 
-	a = (a+time) * scale;
-	b = b * scale;
-	float  x = cos(position.y)*(a + b*cos(position.x))-10.0;
-	float  y = sin(position.y)*(a + b*cos(position.x));
-	float  z = b*sin(position.x)+1.0;
+//	a = (a+time) * scale;
+//	b = b * scale;
+//	float  x = cos(position.y)*(a + b*cos(position.x))-10.0;
+//	float  y = sin(position.y)*(a + b*cos(position.x));
+//	float  z = b*sin(position.x)+1.0;
 
 	// tecne vektory pomoci parcialni derivace
 
-	tecU.x = (-b * cos(position.y) * sin(position.x));
-	tecU.y = (-b * sin(position.y) * sin(position.x));
-	tecU.z = (b * cos(position.x));
+//	tecU.x = (-b * cos(position.y) * sin(position.x));
+//	tecU.y = (-b * sin(position.y) * sin(position.x));
+//	tecU.z = (b * cos(position.x));
+//
+//	tecV.x = (-sin(position.y)) * (a+b * cos(position.x));
+//	tecV.y = (a + (b*cos(position.x))) * cos(position.y);
+//	tecV.z = 0.f;
 
-	tecV.x = (-sin(position.y)) * (a+b * cos(position.x));
-	tecV.y = (a + (b*cos(position.x))) * cos(position.y);
-	tecV.z = 0.f;
+//	normala = cross(tecU, tecV);
 
-	normala = cross(tecU, tecV);
-
-	return vec3(x, y, z);
-
+//	return vec3(x, y, z);
+//}
 
 vec3 getSphere(vec2 vec){
 	position.y += 5;
@@ -128,19 +128,19 @@ void main() {
 		typeShape = 1;
 
 	}
-	else if (type == 2) {										//toroid
-		position = inPosition * 7 -6;
-		position.y -= 10;
-		position.x -= 10;
-		finalPosition = getToroid(position).xyz;
+//	else if (type == 2) {										//toroid
+//		position = inPosition * 7 -6;
+//		position.y -= 10;
+//		position.x -= 10;
+//		finalPosition = getToroid(position).xyz;
 	//	normala = getNormal(inPosition);
-		outPosition = inPosition;
-		texCoord = inPosition;
-		typeShape = 2;
+//		outPosition = inPosition;
+//		texCoord = inPosition;
+//		typeShape = 2;
 
 
 
-	}
+//	}
 	else if (type == 3) {										//juicer
 
 		position = inPosition * 2 -1;
@@ -164,17 +164,18 @@ void main() {
 		texCoord = inPosition;
 		typeShape = 4;
 
-	}else if (type == 6) {										//nevim este co
-
-		position = inPosition * 2 -1;
-		position.x -=5;
-		position.y -=5;
-		finalPosition = vec3(position, getJuicer(position));
-		outPosition = position;
-		texCoord = inPosition;
-		typeShape = 0;
-
 	}
+	//else if (type == 6) {										//nevim este co
+
+	//	position = inPosition * 2 -1;
+	//	position.x -=5;
+	//	position.y -=5;
+	//	finalPosition = vec3(position, getJuicer(position));
+	//	outPosition = position;
+	//	texCoord = inPosition;
+	//	typeShape = 0;
+
+//	}
 
 
 //	viewDirection = (-finalPosition);
@@ -185,6 +186,6 @@ void main() {
 	coTexOut = coTex;
 	vec4 pos4 = vec4(finalPosition,1.0);
 	//gl_NormalMatrix  = view * ;
-	normala = transpose(inverse(normal))*normala;
+//	normala = transpose(inverse(normal))*normala;
 	gl_Position = projection * view * pos4;
 } 

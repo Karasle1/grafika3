@@ -33,23 +33,23 @@ void main() {
 		}
 
 	} else if
-	(typeShape == 2) {
-		vec3 nNormala = normalize(normala);
-		float f = dot(normalize(vec3(0.0, 1.0, 1.0)), nNormala);
-		f = max(f, 0.0);
-		outColor.rgb = vec3(f);
-		outColor.a = 1.0;
+//	(typeShape == 2) {
+	//	vec3 nNormala = normalize(normala);
+//		float f = dot(normalize(vec3(0.0, 1.0, 1.0)), nNormala);
+//		f = max(f, 0.0);
+//		outColor.rgb = vec3(f);
+//		outColor.a = 1.0;
 
-		if (coTexOut == 0){
+//		if (coTexOut == 0){
 		//	outColor = outColor * vec4(outPosition.rg, 0.0, 1.0);
-			outColor = vec4(nNormala,1.0);
-		}
-		else
-		{
-			outColor = outColor * textureMosaic;
-		}
+//			outColor = vec4(nNormala,1.0);
+//		}
+//		else
+//		{
+	//		outColor = outColor * textureMosaic;
+//		}
 
-	} else if
+//	} else if
 	(typeShape == 3) {
 
 		vec3 nNormala = normalize(normala);
