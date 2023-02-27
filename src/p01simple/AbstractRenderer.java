@@ -3,7 +3,7 @@ package p01simple;
 import lwjglutils.OGLTextRenderer;
 import lwjglutils.OGLUtils;
 import org.lwjgl.BufferUtils;
-//import org.lwjgl;
+
 import org.lwjgl.glfw.*;
 
 import java.nio.DoubleBuffer;

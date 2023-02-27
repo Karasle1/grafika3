@@ -16,8 +16,8 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class LwjglWindow {
 
-	public static int WIDTH = 1024;
-    public static int HEIGHT = 768;
+	public static int WIDTH = 2048;
+    public static int HEIGHT = 1440;
 
     // The window handle
 	private long window;
@@ -193,6 +193,7 @@ public class LwjglWindow {
 		while ( !glfwWindowShouldClose(window) ) {
 			
 			renderer.display();
+
 			
 			glfwSwapBuffers(window); // swap the color buffers
 

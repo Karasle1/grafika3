@@ -41,8 +41,12 @@ import org.lwjgl.glfw.GLFWMouseButtonCallback;
 public class Renderer extends p01simple.AbstractRenderer {
 
 
-    private OGLBuffers buffers,buffersToroid;
-    private int viewLocation,viewLocationToroid,projectionLocation,projectionLocationToroid,shaderProgramMain, locWave,shaderProgramToroid,typeLocation,typeLocationToroid, typeScale, projection = 1,toroid,juicer,ball,wave,coTex = 1,typecoTex,locTime;
+    private OGLBuffers buffers,buffersToroid,buffersWave,buffersSpikes;
+    private int viewLocation,viewLocationToroid,viewLocationWave,viewLocationSpikes,
+            projectionLocation,projectionLocationToroid,projectionLocationWave,projectionLocationSpikes,
+            shaderProgramMain,shaderProgramWave,shaderProgramToroid,shaderProgramSpikes,
+            typeLocation,typeLocationToroid, typeLocationWave,typeLocationSpikes,
+            typeScale, projection = 1,toroid,juicer,ball,wave,spikes,coTex = 1,typecoTex,locTime;
 
     private Camera camera;
     private Mat4PerspRH persp;
@@ -51,7 +55,7 @@ public class Renderer extends p01simple.AbstractRenderer {
     private boolean mousePressed;
     private double oldMx, oldMy;
 
-    int anim = 0;
+    int anim = 0, wire = 0;
     float  scale=1f,time=1f,i=0.1f;
     private OGLTexture2D textureFire, textureBricks,textureMosaic,textureBall8,texturePavement;
     private Mat4OrthoRH ortho;
@@ -66,18 +70,27 @@ public class Renderer extends p01simple.AbstractRenderer {
 
 
         glClearColor(0.120f, 0.120f, 0.120f, 1f);
-        glPolygonMode(GL_FRONT_AND_BACK, GL11.GL_FILL);
+
+
         shaderProgramMain = ShaderUtils.loadProgram("/main");
         shaderProgramToroid = ShaderUtils.loadProgram("/toroid");
+        shaderProgramWave = ShaderUtils.loadProgram("/wave");
+        shaderProgramSpikes = ShaderUtils.loadProgram("/spikes");
 
         viewLocation = glGetUniformLocation(shaderProgramMain, "view");
         viewLocationToroid = glGetUniformLocation(shaderProgramToroid, "viewToroid");
+        viewLocationWave= glGetUniformLocation(shaderProgramWave, "viewWave");
+        viewLocationSpikes= glGetUniformLocation(shaderProgramSpikes, "viewSpikes");
 
         projectionLocation = glGetUniformLocation(shaderProgramMain, "projection");
         projectionLocationToroid = glGetUniformLocation(shaderProgramToroid, "projectionToroid");
+        projectionLocationWave = glGetUniformLocation(shaderProgramWave, "projectionWave");
+        projectionLocationSpikes = glGetUniformLocation(shaderProgramSpikes, "projectionSpikes");
 
         typeLocation = glGetUniformLocation(shaderProgramMain, "type");
         typeLocationToroid = glGetUniformLocation(shaderProgramToroid, "typeToroid");
+        typeLocationWave = glGetUniformLocation(shaderProgramWave, "typeWave");
+        typeLocationSpikes = glGetUniformLocation(shaderProgramSpikes, "typeSpikes");
 
         typeScale = glGetUniformLocation(shaderProgramMain, "scale");
         typecoTex = glGetUniformLocation(shaderProgramMain, "coTex");
@@ -109,6 +122,8 @@ public class Renderer extends p01simple.AbstractRenderer {
 
     buffers = p01simple.GridFactory.generateGrid(50,50);
     buffersToroid = p01simple.GridFactory.generateGrid(50,50);
+    buffersWave = p01simple.GridFactory.generateGrid(50,50);
+    buffersSpikes = p01simple.GridFactory.generateGrid(100,100);
 
         try {
             textureFire = new OGLTexture2D("./textures/mapFire.jpg");
@@ -127,6 +142,11 @@ public class Renderer extends p01simple.AbstractRenderer {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        if (wire == 0){
+            glPolygonMode(GL_FRONT_AND_BACK, GL11.GL_FILL);}
+        else {
+            glPolygonMode(GL_FRONT_AND_BACK, GL11.GL_LINE);}
+
         float[] ambientLight = {0f, 0f, 1f,0f };
 
         float[] specularLight = {1f, 0f, 0f,0f };
@@ -135,35 +155,61 @@ public class Renderer extends p01simple.AbstractRenderer {
 
 
         textureFire.bind(shaderProgramMain,"textureFire",0);
-        textureBricks.bind(shaderProgramMain,"textureBricks",1);
+
 
         textureBall8.bind(shaderProgramMain,"textureBall8",4);
         texturePavement.bind(shaderProgramMain,"texturePavement",3);
 
+//shader Wave
 
-
-        glUseProgram(shaderProgramMain);
+        glUseProgram(shaderProgramWave);
 
         glUniform1f(typeScale,scale);
         glUniform1f(typecoTex,coTex);
         glUniform1f(locTime,time);
-        glUniformMatrix4fv(viewLocation,false, camera.getViewMatrix().floatArray());
-        glUniform3f (typeLocation,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
+        textureBricks.bind(shaderProgramWave,"textureBricks",1);
+        glUniformMatrix4fv(viewLocationWave,false, camera.getViewMatrix().floatArray());
+        glUniform3f (typeLocationWave,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
 
         if(projection == 1 ){
-            glUniformMatrix4fv(projectionLocation, false,persp.floatArray());}
+            glUniformMatrix4fv(projectionLocationWave, false,persp.floatArray());}
         else if(projection == 2){
-            glUniformMatrix4fv(projectionLocation, false,ortho.floatArray());}
+            glUniformMatrix4fv(projectionLocationWave, false,ortho.floatArray());}
 
        if (wave == 1){
-        glUniform1f(typeLocation,1f);
+        glUniform1f(typeLocationWave,1f);
 
-        buffers.draw(GL_TRIANGLES, shaderProgramMain);
+        buffersWave.draw(GL_TRIANGLES, shaderProgramWave);
        }
 
-//////////////////////
+       //sharder spikes
+
+        glUseProgram(shaderProgramSpikes);
+
+        glUniform1f(typeScale,scale);
+        glUniform1f(typecoTex,coTex);
+        glUniform1f(locTime,time);
+        textureMosaic.bind(shaderProgramSpikes,"textureMosaic",2);
+        if(projection == 1 ){
+            glUniformMatrix4fv(projectionLocationSpikes , false,persp.floatArray());}
+        else if(projection == 2){
+            glUniformMatrix4fv(projectionLocationSpikes, false,ortho.floatArray());}
+
+        glUniformMatrix4fv(viewLocationSpikes,false, camera.getViewMatrix().floatArray());
+        glUniform3f (typeLocationSpikes,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
+
+        if (spikes == 1){
+            glUniform1f(typeLocationSpikes,2f);
+            buffersSpikes.draw(GL_TRIANGLES, shaderProgramSpikes);
+        }
+
+//sharder toroid
 
         glUseProgram(shaderProgramToroid);
+
+        glUniform1f(typeScale,scale);
+        glUniform1f(typecoTex,coTex);
+        glUniform1f(locTime,time);
         textureMosaic.bind(shaderProgramToroid,"textureMosaic",2);
         if(projection == 1 ){
             glUniformMatrix4fv(projectionLocationToroid , false,persp.floatArray());}
@@ -174,13 +220,29 @@ public class Renderer extends p01simple.AbstractRenderer {
         glUniform3f (typeLocationToroid,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
 
         if (toroid == 1){
-        glUniform1f(typeLocationToroid,2f);
-
+        glUniform1f(typeLocationToroid,6f);
         buffersToroid.draw(GL_TRIANGLES, shaderProgramToroid);
         }
 ///////////////////////////
 
         glUseProgram(shaderProgramMain);
+
+        glUniform1f(typeScale,scale);
+        glUniform1f(typecoTex,coTex);
+        glUniform1f(locTime,time);
+        textureBricks.bind(shaderProgramMain,"textureBricks",1);
+        glUniformMatrix4fv(viewLocation,false, camera.getViewMatrix().floatArray());
+        glUniform3f (typeLocation,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
+
+        if(projection == 1 ){
+            glUniformMatrix4fv(projectionLocation, false,persp.floatArray());}
+        else if(projection == 2){
+            glUniformMatrix4fv(projectionLocation, false,ortho.floatArray());}
+
+
+
+
+
         if (juicer == 1){
         glUniform1f(typeLocation,3f);
         buffers.draw(GL_TRIANGLES, shaderProgramMain);}
@@ -203,6 +265,10 @@ if (anim==1) {
 
 
     }
+
+
+
+
 
 
     private GLFWMouseButtonCallback mouseButtonCallback = new GLFWMouseButtonCallback () {
@@ -249,6 +315,12 @@ if (anim==1) {
         public void invoke(long window, int key, int scancode, int action, int mods) {
             if (action == GLFW_PRESS || action == GLFW_REPEAT){
                 switch (key) {
+                    case GLFW_KEY_M:
+                        if (wire == 1){
+                            wire = 0;}
+                        else {wire  = 1;}
+                        break;
+
                     case GLFW_KEY_W:
                         camera = camera.forward(1);
                         break;
@@ -297,10 +369,12 @@ if (anim==1) {
                             wave = 0;}
                         else {wave  = 1;}
                         break;
+
+
                     case GLFW_KEY_2:
-                        if (toroid == 1){
-                            toroid = 0;}
-                        else {toroid  = 1;}
+                        if (spikes == 1){
+                            spikes = 0;}
+                        else {spikes  = 1;}
                         break;
                     case GLFW_KEY_3:
                         if (juicer == 1){
@@ -311,6 +385,11 @@ if (anim==1) {
                         if (ball == 1){
                             ball = 0;}
                         else {ball  = 1;}
+                        break;
+                    case GLFW_KEY_6:
+                        if (toroid == 1){
+                            toroid = 0;}
+                        else {toroid  = 1;}
                         break;
 
                 }
@@ -336,7 +415,9 @@ if (anim==1) {
         return scrollCallback;
     }
 
-}
+
+
+    }
 
 
  

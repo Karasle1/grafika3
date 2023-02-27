@@ -22,17 +22,17 @@ float getJuicer(vec2 vec){
 
 }
 
-float getWave(vec2 vec){
+//float getWave(vec2 vec){
 //	position.y += 5;
 
 	//tecne vektory u a v
-	float tecUecU=position.y;
-	float tecVY=position.x;
-	normala = cross (tecU,tecV);
+//	float tecUecU=position.y;
+//	float tecVY=position.x;
+//	normala = cross (tecU,tecV);
 
-	return position.x*position.y;
+//	return position.x*position.y;
 
-}
+//}
 vec3 getNormal(vec2 vec){
 
 	vec3 normal;
@@ -115,19 +115,19 @@ void main() {
 		typeShape = 0;
 
 	}
-	else if (type == 1){					//wave
-		if (scale <= 0)
-		{scale1 = 0;}
-		else {scale1 = scale;}
-		position = inPosition * 2 * scale1;
-		finalPosition = vec3(position,getWave(position));
-		finalPosition.x -=5;
-		finalPosition.y +=7;
-		outPosition = position;
-		texCoord = inPosition;
-		typeShape = 1;
+//	else if (type == 1){					//wave
+//		if (scale <= 0)
+//		{scale1 = 0;}
+//		else {scale1 = scale;}
+//		position = inPosition * 2 * scale1;
+//		finalPosition = vec3(position,getWave(position));
+//		finalPosition.x -=5;
+//		finalPosition.y +=7;
+//		outPosition = position;
+//		texCoord = inPosition;
+//		typeShape = 1;
 
-	}
+//	}
 //	else if (type == 2) {										//toroid
 //		position = inPosition * 7 -6;
 //		position.y -= 10;

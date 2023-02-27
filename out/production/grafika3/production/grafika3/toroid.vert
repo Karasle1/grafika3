@@ -43,7 +43,7 @@ vec3 getToroid(vec2 vec){
 void main() {
 	outPosition = position;
 
- if (typeToroid == 2) {										//toroid
+ if (typeToroid == 6) {										//toroid
 		position = inPosition * 7 -6;
 		position.y -= 10;
 		position.x -= 10;
