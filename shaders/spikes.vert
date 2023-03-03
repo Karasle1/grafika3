@@ -1,61 +1,79 @@
 #version 330
 in vec2 inPosition; // input from the vertex buffer
 in vec3 lightPosition;
-in int gl_vertexID;
 
-out vec2 outPosition;
-out vec3 normala,lightDirection,viewDirection,color;
-out vec2 texCoord;
-out float typeShape,attenuation,coTexOut;
-uniform float typeSpikes,scale,coTex,time;
-uniform int tim;
+
+out vec4 outPosition;
+out vec3 lightDirection,viewDirection,color;
+
+out float attenuation,coTexOut;
+out int typeShape;
+
+uniform int  typeSpikes;
 uniform mat4 viewSpikes;
 uniform  mat4 projectionSpikes;
-vec3 finalPosition,tecU, tecV;
+vec3 finalPosition;
 vec2 position;
-float a = 3,b=1, PI = 3.14159, scale1;
-mat3 modelView;
 vec4 pos4;
 
-vec2 getWave(vec2 vec){
-    	position.y += 5;
+vec3 getBox(vec2 vec){
 
-    //tecne vektory u a v
-    float tecUecU=position.y;
-    float tecVY=position.x;
-    normala = cross (tecU,tecV);
     position = inPosition;
 
-    return position;
+    return vec3(position.x * 15, position.y * 15, 0.1f);
+
+}
+
+vec3 getBox1(vec2 vec){
+
+    position = inPosition;
+
+    return vec3(position.x * 15, 0.0f, position.y * 15);
+
+}
+
+vec3 getBox2(vec2 vec){
+
+    position = inPosition;
+
+    return vec3(0.0f, position.x * 15, position.y * 15);
+
+}
+
+vec3 getBox3(vec2 vec){
+
+    position = inPosition;
+
+    return vec3(position.x * 15,15.0f,position.y * 15 );
 
 }
 
 void main() {
-    outPosition = position;
 
-    if (typeSpikes == 2){					//Spikes
-      if (scale <= 0)
-      {scale1 = 0;}
-      else {scale1 = scale;}
 
-      position = inPosition; //* 2 * scale1;
-          //finalPosition = inPosition  * 2 * scale1;
-      finalPosition = vec3(position,getWave(position));
-     if ( gl_vertexID > 102 && (gl_vertexID % 2) == 0  ){
-        finalPosition.y == 200;
-          }
-                                         //  finalPosition.x -=5;
-                                        //   finalPosition.y +=7;
-      outPosition = position;
-      texCoord = inPosition;
-                                           //     typeShape = 1.0f;
+if(typeSpikes == 1) {
+    position = inPosition;
+    typeShape = 1;
+    finalPosition = vec3(getBox(position));
+} else if (typeSpikes == 2) {
+    position = inPosition;
+    typeShape = 2;
+    finalPosition = vec3(getBox1(position));
+} else if (typeSpikes == 3) {
+    position = inPosition;
+    typeShape = 3;
+    finalPosition = vec3(getBox2(position));
+} else if (typeSpikes == 4) {
+    position = inPosition;
+    typeShape = 4;
+    finalPosition = vec3(getBox3(position));
+}
 
-    }
 
-    coTexOut = coTex;
     vec4 pos4 = vec4(finalPosition,1.0);
 
-
-    gl_Position = projectionSpikes * viewSpikes * pos4;
+      gl_Position = projectionSpikes * viewSpikes * pos4;
+    outPosition = gl_Position;
+     color = finalPosition;
 
 }

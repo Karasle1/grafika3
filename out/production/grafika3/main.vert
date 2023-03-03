@@ -70,26 +70,37 @@ vec3 getNormal(vec2 vec){
 //}
 
 vec3 getSphere(vec2 vec){
-	position.y += 5;
-	float az = vec.x * PI;
-	float ze = vec.y * PI;
-	float r = 1 + time + scale;
-	float x = r * cos(az)* cos(ze);
-	float y = 1 * r * sin(az) * cos(ze);
-	float z = 0.f;
+	position = inPosition;
+	position.xy -= 0,5;
+	position.xy *= 2;
+    float z = 0.5;
+	float r = sqrt((position.x * position.x)+(position.y*position.y));
+	float f = atan((position.y),(position.x));
+    float t = acos( z/r );
 
-	tecU.x = (-r * sin(az) * cos(ze));
-	tecU.y = (r * cos(az) * cos(ze));
-	tecU.z = (r * cos(ze));
+		r=sin(r);
 
-	tecV.x = (-r * cos(az) * sin(ze));
-	tecV.y = (-r * sin(az) * sin(ze));
-	tecV.z = (r * cos(ze));
+//	position.y += 5;
+//	float az = vec.x * PI;
+//	float ze = vec.y * PI;
+//	float r = 1 + time + scale;
+//	float x = r * cos(az)* cos(ze);
+//	float y = 1 * r * sin(az) * cos(ze);
+//	float z = 0.f;
 
-	normala = cross(tecU, tecV);
+//	tecU.x = (-r * sin(az) * cos(ze));
+//	tecU.y = (r * cos(az) * cos(ze));
+//	tecU.z = (r * cos(ze));
+
+//	tecV.x = (-r * cos(az) * sin(ze));
+//	tecV.y = (-r * sin(az) * sin(ze));
+//	tecV.z = (r * cos(ze));
+
+//	normala = cross(tecU, tecV);
 
 
-	return vec3(x,y,z);
+	return vec3((r * sin(t) * cos(f)),(r*sin(t)*sin(f)),(r*cos(t)));
+//	return vec3(r,f,t);
 }
 
 void main() {
@@ -115,39 +126,14 @@ void main() {
 		typeShape = 0;
 
 	}
-//	else if (type == 1){					//wave
-//		if (scale <= 0)
-//		{scale1 = 0;}
-//		else {scale1 = scale;}
-//		position = inPosition * 2 * scale1;
-//		finalPosition = vec3(position,getWave(position));
-//		finalPosition.x -=5;
-//		finalPosition.y +=7;
-//		outPosition = position;
-//		texCoord = inPosition;
-//		typeShape = 1;
 
-//	}
-//	else if (type == 2) {										//toroid
-//		position = inPosition * 7 -6;
-//		position.y -= 10;
-//		position.x -= 10;
-//		finalPosition = getToroid(position).xyz;
-	//	normala = getNormal(inPosition);
-//		outPosition = inPosition;
-//		texCoord = inPosition;
-//		typeShape = 2;
-
-
-
-//	}
 	else if (type == 3) {										//juicer
 
 		position = inPosition * 2 -1;
 		finalPosition = vec3(position, getJuicer(position));
 		normala = getNormal(position);
-		finalPosition.x -= 3;
-		finalPosition.y -= 5;
+		finalPosition.x += 3;
+		finalPosition.y += 5;
 		outPosition = position;
 		texCoord = inPosition;
 		typeShape = 3;

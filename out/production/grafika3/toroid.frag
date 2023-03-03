@@ -26,9 +26,5 @@ void main() {
     {
         outColor = outColor * textureMosaic;
     }
-
-
-
-
 }
 

@@ -41,12 +41,12 @@ import org.lwjgl.glfw.GLFWMouseButtonCallback;
 public class Renderer extends p01simple.AbstractRenderer {
 
 
-    private OGLBuffers buffers,buffersToroid,buffersWave,buffersSpikes;
-    private int viewLocation,viewLocationToroid,viewLocationWave,viewLocationSpikes,
-            projectionLocation,projectionLocationToroid,projectionLocationWave,projectionLocationSpikes,
-            shaderProgramMain,shaderProgramWave,shaderProgramToroid,shaderProgramSpikes,
-            typeLocation,typeLocationToroid, typeLocationWave,typeLocationSpikes,
-            typeScale, projection = 1,toroid,juicer,ball,wave,spikes,coTex = 1,typecoTex,locTime;
+    private OGLBuffers buffers,buffersToroid,buffersWave,buffersSpikes,buffersSPSolid1;
+    private int viewLocation,viewLocationToroid,viewLocationWave,viewLocationSpikes,viewLocationSPSolid1,
+            projectionLocation,projectionLocationToroid,projectionLocationWave,projectionLocationSpikes,projectionLocationSPSolid1,
+    shaderProgramMain,shaderProgramWave,shaderProgramToroid,shaderProgramSpikes,shaderProgramSPSolid1,
+            typeLocation,typeLocationToroid, typeLocationWave,typeLocationSpikes,typeSpikes,typeLocationSPSolid1,
+            typeScale, projection = 1,toroid,juicer,ball,wave,spikes,SPSolid1 ,coTex = 1,typecoTex,locTime;
 
     private Camera camera;
     private Mat4PerspRH persp;
@@ -72,36 +72,42 @@ public class Renderer extends p01simple.AbstractRenderer {
         glClearColor(0.120f, 0.120f, 0.120f, 1f);
 
 
+
+
         shaderProgramMain = ShaderUtils.loadProgram("/main");
         shaderProgramToroid = ShaderUtils.loadProgram("/toroid");
         shaderProgramWave = ShaderUtils.loadProgram("/wave");
         shaderProgramSpikes = ShaderUtils.loadProgram("/spikes");
+        shaderProgramSPSolid1 = ShaderUtils.loadProgram("/SPSolid1");
 
         viewLocation = glGetUniformLocation(shaderProgramMain, "view");
         viewLocationToroid = glGetUniformLocation(shaderProgramToroid, "viewToroid");
         viewLocationWave= glGetUniformLocation(shaderProgramWave, "viewWave");
         viewLocationSpikes= glGetUniformLocation(shaderProgramSpikes, "viewSpikes");
+        viewLocationSPSolid1= glGetUniformLocation(shaderProgramSPSolid1, "viewSpikes");
 
         projectionLocation = glGetUniformLocation(shaderProgramMain, "projection");
         projectionLocationToroid = glGetUniformLocation(shaderProgramToroid, "projectionToroid");
         projectionLocationWave = glGetUniformLocation(shaderProgramWave, "projectionWave");
         projectionLocationSpikes = glGetUniformLocation(shaderProgramSpikes, "projectionSpikes");
+        projectionLocationSPSolid1 = glGetUniformLocation(shaderProgramSPSolid1, "projectionSpikes");
 
         typeLocation = glGetUniformLocation(shaderProgramMain, "type");
         typeLocationToroid = glGetUniformLocation(shaderProgramToroid, "typeToroid");
         typeLocationWave = glGetUniformLocation(shaderProgramWave, "typeWave");
-        typeLocationSpikes = glGetUniformLocation(shaderProgramSpikes, "typeSpikes");
+        typeLocationSpikes = glGetUniformLocation(shaderProgramSpikes, "typeLSpikes");
+        typeSpikes = glGetUniformLocation(shaderProgramSpikes, "typeSpikes");
+        typeLocationSPSolid1 = glGetUniformLocation(shaderProgramSPSolid1, "typeSPSolid1");
 
         typeScale = glGetUniformLocation(shaderProgramMain, "scale");
         typecoTex = glGetUniformLocation(shaderProgramMain, "coTex");
         locTime = glGetUniformLocation(shaderProgramMain, "time");
 
-
-
         camera = new Camera()
-                .withPosition(new Vec3D(10, 10, 6))
-                .withAzimuth(5 / 4f * Math.PI)
-                .withZenith(-1 / 8f * Math.PI);
+            //    .withPosition(new Vec3D(10, 10, 6))
+                .withPosition(new Vec3D(25, 8, 6))
+                .withAzimuth(5 / 1f * Math.PI)
+                .withZenith(-1 / 20f * Math.PI);
 
         persp = new Mat4PerspRH(
                 Math.PI / 3f,
@@ -124,6 +130,7 @@ public class Renderer extends p01simple.AbstractRenderer {
     buffersToroid = p01simple.GridFactory.generateGrid(50,50);
     buffersWave = p01simple.GridFactory.generateGrid(50,50);
     buffersSpikes = p01simple.GridFactory.generateGrid(100,100);
+    buffersSPSolid1 = p01simple.GridFactory.generateGrid(100,100);
 
         try {
             textureFire = new OGLTexture2D("./textures/mapFire.jpg");
@@ -154,9 +161,9 @@ public class Renderer extends p01simple.AbstractRenderer {
         float[] diffuseLight = { 1f,0f,0f,0f };
 
 
+
+
         textureFire.bind(shaderProgramMain,"textureFire",0);
-
-
         textureBall8.bind(shaderProgramMain,"textureBall8",4);
         texturePavement.bind(shaderProgramMain,"texturePavement",3);
 
@@ -186,10 +193,6 @@ public class Renderer extends p01simple.AbstractRenderer {
 
         glUseProgram(shaderProgramSpikes);
 
-        glUniform1f(typeScale,scale);
-        glUniform1f(typecoTex,coTex);
-        glUniform1f(locTime,time);
-        textureMosaic.bind(shaderProgramSpikes,"textureMosaic",2);
         if(projection == 1 ){
             glUniformMatrix4fv(projectionLocationSpikes , false,persp.floatArray());}
         else if(projection == 2){
@@ -198,9 +201,38 @@ public class Renderer extends p01simple.AbstractRenderer {
         glUniformMatrix4fv(viewLocationSpikes,false, camera.getViewMatrix().floatArray());
         glUniform3f (typeLocationSpikes,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
 
-        if (spikes == 1){
-            glUniform1f(typeLocationSpikes,2f);
+       // if (spikes == 1){
+            glUniform1i(typeSpikes,1);
             buffersSpikes.draw(GL_TRIANGLES, shaderProgramSpikes);
+
+            glUniform1i(typeSpikes,2);
+            buffersSpikes.draw(GL_TRIANGLES, shaderProgramSpikes);
+
+        glUniform1i(typeSpikes,3);
+        buffersSpikes.draw(GL_TRIANGLES, shaderProgramSpikes);
+
+        glUniform1i(typeSpikes,4);
+        buffersSpikes.draw(GL_TRIANGLES, shaderProgramSpikes);
+      //  }
+
+        // shader SPSolid1
+        glUseProgram(shaderProgramSPSolid1);
+
+        glUniform1f(typeScale,scale);
+        glUniform1f(typecoTex,coTex);
+        glUniform1f(locTime,time);
+        textureMosaic.bind(shaderProgramSpikes,"textureMosaic",2);
+        if(projection == 1 ){
+            glUniformMatrix4fv(projectionLocationSPSolid1 , false,persp.floatArray());}
+        else if(projection == 2){
+            glUniformMatrix4fv(projectionLocationSPSolid1, false,ortho.floatArray());}
+
+        glUniformMatrix4fv(viewLocationSPSolid1,false, camera.getViewMatrix().floatArray());
+        glUniform3f (typeLocationSPSolid1,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
+
+        if (SPSolid1 == 5){
+            glUniform1f(typeLocationSPSolid1,6f);
+            buffersSPSolid1.draw(GL_TRIANGLES, shaderProgramSPSolid1);
         }
 
 //sharder toroid
@@ -385,6 +417,11 @@ if (anim==1) {
                         if (ball == 1){
                             ball = 0;}
                         else {ball  = 1;}
+                        break;
+                    case GLFW_KEY_5:
+                        if (SPSolid1 == 1){
+                            SPSolid1 = 0;}
+                        else {SPSolid1  = 1;}
                         break;
                     case GLFW_KEY_6:
                         if (toroid == 1){
