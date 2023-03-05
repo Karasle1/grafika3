@@ -17,7 +17,7 @@ mat3 modelView;
 vec4 pos4;
 
 float getWave(vec2 position){
-    //	position.y += 5;
+
 
     //tecne vektory u a v
     float tecUecU=position.y;
@@ -38,8 +38,9 @@ void main() {
          position = inPosition;
          position = position * 2 * scale1;
          finalPosition = vec3(position,getWave(position));
-         finalPosition.x -=5;
+         finalPosition.x +=25;
          finalPosition.y +=7;
+         finalPosition.z +=3;
          outPosition = position;
          texCoord = inPosition;
     //     typeShape = 1.0f;

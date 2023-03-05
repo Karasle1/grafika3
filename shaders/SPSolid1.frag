@@ -13,13 +13,13 @@ void main() {
     vec3 nNormala = normalize(normala);
     float f = dot(normalize(vec3(0.0, 1.0, 1.0)), nNormala);
     f = max(f, 0.0);
-    outColor.rgb = vec3(f);
+    outColor.rgb = vec3(outPosition.rgb);
     outColor.a = 1.0;
 
     if (coTexOut == 0){
-        outColor =  outColor +  vec4(outPosition.rg, 0.0, 1.0);
+        outColor =  outColor +  vec4(outPosition.rgb, 1.0);
 
-    }
+   }
     else
     {
         outColor =  textureBricks;

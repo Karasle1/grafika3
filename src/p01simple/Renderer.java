@@ -46,7 +46,7 @@ public class Renderer extends p01simple.AbstractRenderer {
             projectionLocation,projectionLocationToroid,projectionLocationWave,projectionLocationSpikes,projectionLocationSPSolid1,
     shaderProgramMain,shaderProgramWave,shaderProgramToroid,shaderProgramSpikes,shaderProgramSPSolid1,
             typeLocation,typeLocationToroid, typeLocationWave,typeLocationSpikes,typeSpikes,typeLocationSPSolid1,
-            typeScale, projection = 1,toroid,juicer,ball,wave,spikes,SPSolid1 ,coTex = 1,typecoTex,locTime;
+            typeScale, projection = 1,toroid,juicer,ball,wave,spikes,SPSolid1,coTex = 1,typecoTex,locTime;
 
     private Camera camera;
     private Mat4PerspRH persp;
@@ -84,13 +84,13 @@ public class Renderer extends p01simple.AbstractRenderer {
         viewLocationToroid = glGetUniformLocation(shaderProgramToroid, "viewToroid");
         viewLocationWave= glGetUniformLocation(shaderProgramWave, "viewWave");
         viewLocationSpikes= glGetUniformLocation(shaderProgramSpikes, "viewSpikes");
-        viewLocationSPSolid1= glGetUniformLocation(shaderProgramSPSolid1, "viewSpikes");
+        viewLocationSPSolid1= glGetUniformLocation(shaderProgramSPSolid1, "viewSPSolid1");
 
         projectionLocation = glGetUniformLocation(shaderProgramMain, "projection");
         projectionLocationToroid = glGetUniformLocation(shaderProgramToroid, "projectionToroid");
         projectionLocationWave = glGetUniformLocation(shaderProgramWave, "projectionWave");
         projectionLocationSpikes = glGetUniformLocation(shaderProgramSpikes, "projectionSpikes");
-        projectionLocationSPSolid1 = glGetUniformLocation(shaderProgramSPSolid1, "projectionSpikes");
+        projectionLocationSPSolid1 = glGetUniformLocation(shaderProgramSPSolid1, "projectionSPSolid1");
 
         typeLocation = glGetUniformLocation(shaderProgramMain, "type");
         typeLocationToroid = glGetUniformLocation(shaderProgramToroid, "typeToroid");
@@ -230,7 +230,7 @@ public class Renderer extends p01simple.AbstractRenderer {
         glUniformMatrix4fv(viewLocationSPSolid1,false, camera.getViewMatrix().floatArray());
         glUniform3f (typeLocationSPSolid1,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
 
-        if (SPSolid1 == 5){
+        if (SPSolid1 == 1){
             glUniform1f(typeLocationSPSolid1,6f);
             buffersSPSolid1.draw(GL_TRIANGLES, shaderProgramSPSolid1);
         }
