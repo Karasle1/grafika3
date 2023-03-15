@@ -4,16 +4,16 @@ Zobrazeni dratovy a vybarveny model - done ****************
 
 Shadery na tvary - done **************
 
-vypocty - 6 funkcí, dvě v kartézských, dvě ve sférických a dvě v cylindrických souřadnicích. Vždy jedna může být použita z uvedených stránek a druhou „pěknou“ navrhněte.
+vypocty - 6 funkcí, dvě v kartézských, dvě ve sférických a dvě v cylindrických souřadnicích. Vždy jedna může být použita z uvedených stránek a druhou „pěknou“ navrhněte. done ***********************
 
-1 modifikovat pomoci uniform treba time - done ****************************
+1 modifikovat pomoci uniform treba time
 
 zobraziot najednou nactene a vypoctene
 
 Vytvořte vhodné pixelové programy pro renderování hodnot na povrchu těles znázorňující barevně pozici (souřadnici xyz, hloubku z pohledu pozorovatele), barvu povrchu, mapovanou texturu, vypočtenou normálu, souřadnice do textury, vzdálenost od zdroje světla.
  Znázornění je vhodné pro debugování.
 
-Umožněte změnu modelovací transformace tělesa, animací v čase nebo ovládáním uživatelem.
+Umožněte změnu modelovací transformace tělesa, animací v čase nebo ovládáním uživatelem. done **********************
 
 Pozorovatele (pohledovou transformaci) nastavte pomocí kamery a ovládejte myší (rozhlížení) a klávesami WSAD (pohyb vpřed, vzad, vlevo, vpravo). - done **********************
 

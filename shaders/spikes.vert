@@ -9,7 +9,7 @@ out vec3 lightDirection,viewDirection,color;
 out float attenuation,coTexOut;
 out int typeShape;
 
-uniform int  typeSpikes;
+uniform int  typeMain;
 uniform mat4 viewSpikes;
 uniform  mat4 projectionSpikes;
 vec3 finalPosition;
@@ -68,6 +68,9 @@ if(typeSpikes == 1) {
     typeShape = 4;
     finalPosition = vec3(getBox3(position));
 }
+
+
+
 
 
     vec4 pos4 = vec4(finalPosition,1.0);

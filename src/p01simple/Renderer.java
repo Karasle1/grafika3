@@ -1,7 +1,4 @@
 package p01simple;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 import lwjglutils.OGLBuffers;
 import lwjglutils.OGLTexture2D;
@@ -14,16 +11,14 @@ import lwjglutils.ShaderUtils;
 import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWScrollCallback;
 import org.lwjgl.opengl.GL11;
-import transforms.Camera;
-import transforms.Mat4PerspRH;
-import transforms.Mat4OrthoRH;
-import transforms.Vec3D;
+import transforms.*;
 
 
 import java.io.IOException;
-import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 
+import static java.lang.System.currentTimeMillis;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 import static org.lwjgl.opengl.GL20.glUniform1f;
@@ -33,30 +28,44 @@ import org.lwjgl.glfw.GLFWMouseButtonCallback;
 
 
 /**
-* 
-* @author PGRF FIM UHK
-* @version 2.0
-* @since 2019-09-02
-*/
+ *
+ * @author PGRF FIM UHK
+ * @version 2.0
+ * @since 2019-09-02
+ */
 public class Renderer extends p01simple.AbstractRenderer {
 
 
-    private OGLBuffers buffers,buffersToroid,buffersWave,buffersSpikes,buffersSPSolid1;
-    private int viewLocation,viewLocationToroid,viewLocationWave,viewLocationSpikes,viewLocationSPSolid1,
-            projectionLocation,projectionLocationToroid,projectionLocationWave,projectionLocationSpikes,projectionLocationSPSolid1,
-    shaderProgramMain,shaderProgramWave,shaderProgramToroid,shaderProgramSpikes,shaderProgramSPSolid1,
-            typeLocation,typeLocationToroid, typeLocationWave,typeLocationSpikes,typeSpikes,typeLocationSPSolid1,
-            typeScale, projection = 1,toroid,juicer,ball,wave,spikes,SPSolid1,coTex = 1,typecoTex,locTime;
+    private OGLBuffers buffers,
+            buffersSPSolid1,buffersSPSolid2,buffersCLSolid1,buffersCLSolid2,buffersCASolid1,buffersCASolid2;
+    private int viewLocation, viewLocationSPSolid1,viewLocationSPSolid2,viewLocationCLSolid1,
+            viewLocationCLSolid2,viewLocationCASolid1,viewLocationCASolid2,
+            lightLocation, lightLocationSPSolid1,lightLocationSPSolid2,lightLocationCLSolid1,
+            lightLocationCLSolid2,lightLocationCASolid1,lightLocationCASolid2,
+            projectionLocation,projectionLocationSPSolid1,projectionLocationSPSolid2,projectionLocationCLSolid1,
+            projectionLocationCLSolid2,projectionLocationCASolid1,projectionLocationCASolid2,
+            shaderProgramMain,
+            shaderProgramSPSolid1,shaderProgramSPSolid2,shaderProgramCLSolid1,shaderProgramCLSolid2,shaderProgramCASolid1,
+            shaderProgramCASolid2,
+
+            typeScale, projection = 1,SPSolid1,SPSolid2,CLSolid1, CLSolid2,CASolid1,CASolid2,
+            coTex = 1,typecoTex,locTime,typeMain,
+            scaleMSPSolid1,scaleMSPSolid2,scaleMCLSolid1,scaleMCLSolid2,scaleMCASolid1,scaleMCASolid2,
+            rotateMSPSolid1,rotateMSPSolid2,rotateMCLSolid1,rotateMCLSolid2,rotateMCASolid1,rotateMCASolid2;
 
     private Camera camera;
     private Mat4PerspRH persp;
     private Vec3D lightPosition;
 
+    private  Mat4Scale scaleMat;
+    private  Mat4RotXYZ rotateMat;
+
     private boolean mousePressed;
-    private double oldMx, oldMy;
+    private double oldMx, oldMy, ofst;
 
     int anim = 0, wire = 0;
-    float  scale=1f,time=1f,i=0.1f;
+    float  time=1f,i=0.1f;
+    double scale = 1;
     private OGLTexture2D textureFire, textureBricks,textureMosaic,textureBall8,texturePavement;
     private Mat4OrthoRH ortho;
 
@@ -68,46 +77,65 @@ public class Renderer extends p01simple.AbstractRenderer {
         OGLUtils.printJAVAparameters();
         OGLUtils.shaderCheck();
 
-
         glClearColor(0.120f, 0.120f, 0.120f, 1f);
 
-
-
-
         shaderProgramMain = ShaderUtils.loadProgram("/main");
-        shaderProgramToroid = ShaderUtils.loadProgram("/toroid");
-        shaderProgramWave = ShaderUtils.loadProgram("/wave");
-        shaderProgramSpikes = ShaderUtils.loadProgram("/spikes");
         shaderProgramSPSolid1 = ShaderUtils.loadProgram("/SPSolid1");
+        shaderProgramSPSolid2 = ShaderUtils.loadProgram("/SPSolid2");
+        shaderProgramCLSolid1 = ShaderUtils.loadProgram("/CLSolid1");
+        shaderProgramCLSolid2 = ShaderUtils.loadProgram("/CLSolid2");
+        shaderProgramCASolid1 = ShaderUtils.loadProgram("/CASolid1");
+        shaderProgramCASolid2 = ShaderUtils.loadProgram("/CASolid2");
 
         viewLocation = glGetUniformLocation(shaderProgramMain, "view");
-        viewLocationToroid = glGetUniformLocation(shaderProgramToroid, "viewToroid");
-        viewLocationWave= glGetUniformLocation(shaderProgramWave, "viewWave");
-        viewLocationSpikes= glGetUniformLocation(shaderProgramSpikes, "viewSpikes");
         viewLocationSPSolid1= glGetUniformLocation(shaderProgramSPSolid1, "viewSPSolid1");
+        viewLocationSPSolid2= glGetUniformLocation(shaderProgramSPSolid2, "viewSPSolid2");
+        viewLocationCLSolid1= glGetUniformLocation(shaderProgramCLSolid1, "viewCLSolid1");
+        viewLocationCLSolid2= glGetUniformLocation(shaderProgramCLSolid2, "viewCLSolid2");
+        viewLocationCASolid1= glGetUniformLocation(shaderProgramCASolid1, "viewCASolid1");
+        viewLocationCASolid2= glGetUniformLocation(shaderProgramCASolid2, "viewCASolid2");
+
+        lightLocation = glGetUniformLocation(shaderProgramMain, "light");
+        lightLocationSPSolid1= glGetUniformLocation(shaderProgramSPSolid1, "lightSPSolid1");
+        lightLocationSPSolid2= glGetUniformLocation(shaderProgramSPSolid2, "lightSPSolid2");
+        lightLocationCLSolid1= glGetUniformLocation(shaderProgramCLSolid1, "lightCLSolid1");
+        lightLocationCLSolid2= glGetUniformLocation(shaderProgramCLSolid2, "lightCLSolid2");
+        lightLocationCASolid1= glGetUniformLocation(shaderProgramCASolid1, "lightCASolid1");
+        lightLocationCASolid2= glGetUniformLocation(shaderProgramCASolid2, "lightCASolid2");
 
         projectionLocation = glGetUniformLocation(shaderProgramMain, "projection");
-        projectionLocationToroid = glGetUniformLocation(shaderProgramToroid, "projectionToroid");
-        projectionLocationWave = glGetUniformLocation(shaderProgramWave, "projectionWave");
-        projectionLocationSpikes = glGetUniformLocation(shaderProgramSpikes, "projectionSpikes");
         projectionLocationSPSolid1 = glGetUniformLocation(shaderProgramSPSolid1, "projectionSPSolid1");
+        projectionLocationSPSolid2 = glGetUniformLocation(shaderProgramSPSolid2, "projectionSPSolid2");
+        projectionLocationCLSolid1 = glGetUniformLocation(shaderProgramCLSolid1, "projectionCLSolid1");
+        projectionLocationCLSolid2 = glGetUniformLocation(shaderProgramCLSolid2, "projectionCLSolid2");
+        projectionLocationCASolid1 = glGetUniformLocation(shaderProgramCASolid1, "projectionCASolid1");
+        projectionLocationCASolid2 = glGetUniformLocation(shaderProgramCASolid2, "projectionCASolid2");
 
-        typeLocation = glGetUniformLocation(shaderProgramMain, "type");
-        typeLocationToroid = glGetUniformLocation(shaderProgramToroid, "typeToroid");
-        typeLocationWave = glGetUniformLocation(shaderProgramWave, "typeWave");
-        typeLocationSpikes = glGetUniformLocation(shaderProgramSpikes, "typeLSpikes");
-        typeSpikes = glGetUniformLocation(shaderProgramSpikes, "typeSpikes");
-        typeLocationSPSolid1 = glGetUniformLocation(shaderProgramSPSolid1, "typeSPSolid1");
 
-        typeScale = glGetUniformLocation(shaderProgramMain, "scale");
-        typecoTex = glGetUniformLocation(shaderProgramMain, "coTex");
+        scaleMSPSolid1 = glGetUniformLocation(shaderProgramSPSolid1, "scaleMSPSolid1");
+        scaleMSPSolid2 = glGetUniformLocation(shaderProgramSPSolid2, "scaleMSPSolid2");
+        scaleMCLSolid1 = glGetUniformLocation(shaderProgramCLSolid1, "scaleMCLSolid1");
+        scaleMCLSolid2 = glGetUniformLocation(shaderProgramCLSolid2, "scaleMCLSolid2");
+        scaleMCASolid1 = glGetUniformLocation(shaderProgramCASolid1, "scaleMCASolid1");
+        scaleMCASolid2 = glGetUniformLocation(shaderProgramCASolid2, "scaleMCASolid2");
+
+        rotateMSPSolid1 = glGetUniformLocation(shaderProgramSPSolid1, "rotateMSPSolid1");
+        rotateMSPSolid2 = glGetUniformLocation(shaderProgramSPSolid2, "rotateMSPSolid2");
+        rotateMCLSolid1 = glGetUniformLocation(shaderProgramCLSolid1, "rotateMCLSolid1");
+        rotateMCLSolid2 = glGetUniformLocation(shaderProgramCLSolid2, "rotateMCLSolid2");
+        rotateMCASolid1 = glGetUniformLocation(shaderProgramCASolid1, "rotateMCASolid1");
+        rotateMCASolid2 = glGetUniformLocation(shaderProgramCASolid2, "rotateMCASolid2");
+
+        //typeScale = glGetUniformLocation(shaderProgramMain, "scale");
+        typecoTex = glGetUniformLocation(shaderProgramCASolid1, "coTex");
         locTime = glGetUniformLocation(shaderProgramMain, "time");
 
+
         camera = new Camera()
-            //    .withPosition(new Vec3D(10, 10, 6))
+                //    .withPosition(new Vec3D(10, 10, 6))
                 .withPosition(new Vec3D(25, 8, 6))
                 .withAzimuth(5 / 1f * Math.PI)
-                .withZenith(-1 / 20f * Math.PI);
+                .withZenith(-1 / 30f * Math.PI);
 
         persp = new Mat4PerspRH(
                 Math.PI / 3f,
@@ -123,14 +151,15 @@ public class Renderer extends p01simple.AbstractRenderer {
                 50
         );
 
-       lightPosition =new Vec3D(5.f,5.f,5.f);
+        lightPosition =new Vec3D(5.f,5.f,5.f);
 
-
-    buffers = p01simple.GridFactory.generateGrid(50,50);
-    buffersToroid = p01simple.GridFactory.generateGrid(50,50);
-    buffersWave = p01simple.GridFactory.generateGrid(50,50);
-    buffersSpikes = p01simple.GridFactory.generateGrid(100,100);
-    buffersSPSolid1 = p01simple.GridFactory.generateGrid(100,100);
+        buffers = p01simple.GridFactory.generateGrid(100,100);
+        buffersSPSolid1 = p01simple.GridFactory.generateGrid(100,100);
+        buffersSPSolid2 = p01simple.GridFactory.generateGrid(100,100);
+        buffersCLSolid1 = p01simple.GridFactory.generateGrid(100,100);
+        buffersCLSolid2 = p01simple.GridFactory.generateGrid(100,100);
+        buffersCASolid1 = p01simple.GridFactory.generateGrid(100,100);
+        buffersCASolid2 = p01simple.GridFactory.generateGrid(100,100);
 
         try {
             textureFire = new OGLTexture2D("./textures/mapFire.jpg");
@@ -160,164 +189,193 @@ public class Renderer extends p01simple.AbstractRenderer {
 
         float[] diffuseLight = { 1f,0f,0f,0f };
 
+     //   textureFire.bind(shaderProgramCASolid1,"textureFire",0);
+     //   textureBall8.bind(shaderProgramMain,"textureBall8",4);
+      //  texturePavement.bind(shaderProgramMain,"texturePavement",3);
+
+        scaleMat = new Mat4Scale(scale,scale,scale);
+        rotateMat = new Mat4RotXYZ(ofst,ofst,ofst);
 
 
-
-        textureFire.bind(shaderProgramMain,"textureFire",0);
-        textureBall8.bind(shaderProgramMain,"textureBall8",4);
-        texturePavement.bind(shaderProgramMain,"texturePavement",3);
-
-//shader Wave
-
-        glUseProgram(shaderProgramWave);
-
-        glUniform1f(typeScale,scale);
-        glUniform1f(typecoTex,coTex);
-        glUniform1f(locTime,time);
-        textureBricks.bind(shaderProgramWave,"textureBricks",1);
-        glUniformMatrix4fv(viewLocationWave,false, camera.getViewMatrix().floatArray());
-        glUniform3f (typeLocationWave,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
-
-        if(projection == 1 ){
-            glUniformMatrix4fv(projectionLocationWave, false,persp.floatArray());}
-        else if(projection == 2){
-            glUniformMatrix4fv(projectionLocationWave, false,ortho.floatArray());}
-
-       if (wave == 1){
-        glUniform1f(typeLocationWave,1f);
-
-        buffersWave.draw(GL_TRIANGLES, shaderProgramWave);
-       }
-
-       //sharder spikes
-
-        glUseProgram(shaderProgramSpikes);
-
-        if(projection == 1 ){
-            glUniformMatrix4fv(projectionLocationSpikes , false,persp.floatArray());}
-        else if(projection == 2){
-            glUniformMatrix4fv(projectionLocationSpikes, false,ortho.floatArray());}
-
-        glUniformMatrix4fv(viewLocationSpikes,false, camera.getViewMatrix().floatArray());
-        glUniform3f (typeLocationSpikes,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
-
-       // if (spikes == 1){
-            glUniform1i(typeSpikes,1);
-            buffersSpikes.draw(GL_TRIANGLES, shaderProgramSpikes);
-
-            glUniform1i(typeSpikes,2);
-            buffersSpikes.draw(GL_TRIANGLES, shaderProgramSpikes);
-
-        glUniform1i(typeSpikes,3);
-        buffersSpikes.draw(GL_TRIANGLES, shaderProgramSpikes);
-
-        glUniform1i(typeSpikes,4);
-        buffersSpikes.draw(GL_TRIANGLES, shaderProgramSpikes);
-      //  }
-
-        // shader SPSolid1
-        glUseProgram(shaderProgramSPSolid1);
-
-        glUniform1f(typeScale,scale);
-        glUniform1f(typecoTex,coTex);
-        glUniform1f(locTime,time);
-        textureMosaic.bind(shaderProgramSpikes,"textureMosaic",2);
-        if(projection == 1 ){
-            glUniformMatrix4fv(projectionLocationSPSolid1 , false,persp.floatArray());}
-        else if(projection == 2){
-            glUniformMatrix4fv(projectionLocationSPSolid1, false,ortho.floatArray());}
-
-        glUniformMatrix4fv(viewLocationSPSolid1,false, camera.getViewMatrix().floatArray());
-        glUniform3f (typeLocationSPSolid1,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
-
-        if (SPSolid1 == 1){
-            glUniform1f(typeLocationSPSolid1,6f);
-            buffersSPSolid1.draw(GL_TRIANGLES, shaderProgramSPSolid1);
-        }
-
-//sharder toroid
-
-        glUseProgram(shaderProgramToroid);
-
-        glUniform1f(typeScale,scale);
-        glUniform1f(typecoTex,coTex);
-        glUniform1f(locTime,time);
-        textureMosaic.bind(shaderProgramToroid,"textureMosaic",2);
-        if(projection == 1 ){
-            glUniformMatrix4fv(projectionLocationToroid , false,persp.floatArray());}
-        else if(projection == 2){
-            glUniformMatrix4fv(projectionLocationToroid, false,ortho.floatArray());}
-
-        glUniformMatrix4fv(viewLocationToroid,false, camera.getViewMatrix().floatArray());
-        glUniform3f (typeLocationToroid,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
-
-        if (toroid == 1){
-        glUniform1f(typeLocationToroid,6f);
-        buffersToroid.draw(GL_TRIANGLES, shaderProgramToroid);
-        }
-///////////////////////////
+        //////////////////sharder Main
 
         glUseProgram(shaderProgramMain);
-
-        glUniform1f(typeScale,scale);
-        glUniform1f(typecoTex,coTex);
-        glUniform1f(locTime,time);
-        textureBricks.bind(shaderProgramMain,"textureBricks",1);
-        glUniformMatrix4fv(viewLocation,false, camera.getViewMatrix().floatArray());
-        glUniform3f (typeLocation,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
 
         if(projection == 1 ){
             glUniformMatrix4fv(projectionLocation, false,persp.floatArray());}
         else if(projection == 2){
             glUniformMatrix4fv(projectionLocation, false,ortho.floatArray());}
 
+        glUniformMatrix4fv(viewLocation,false, camera.getViewMatrix().floatArray());
+        glUniform3f (lightLocation,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
 
 
+        glUniform1i(typeMain,1);
+        buffers.draw(GL_TRIANGLES, shaderProgramMain);
+
+        glUniform1i(typeMain,2);
+        buffers.draw(GL_TRIANGLES, shaderProgramMain);
+
+        glUniform1i(typeMain,3);
+        buffers.draw(GL_TRIANGLES, shaderProgramMain);
+
+        glUniform1i(typeMain,4);
+        buffers.draw(GL_TRIANGLES, shaderProgramMain);
 
 
-        if (juicer == 1){
-        glUniform1f(typeLocation,3f);
-        buffers.draw(GL_TRIANGLES, shaderProgramMain);}
-        glUseProgram(shaderProgramMain);
-        if (ball == 1){
-        glUniform1f(typeLocation,4f);
-        buffers.draw(GL_TRIANGLES, shaderProgramMain);}
+        //////////////////////// shader CASolid1
+        glUseProgram(shaderProgramCASolid1);
+        glUniform1f(typecoTex,coTex);
+        glUniform1f(locTime,time);
+        textureFire.bind(shaderProgramCASolid1,"textureFire",0);
 
+        if(projection == 1 ){
+            glUniformMatrix4fv(projectionLocationCASolid1 , false,persp.floatArray());}
+        else if(projection == 2){
+            glUniformMatrix4fv(projectionLocationCASolid1, false,ortho.floatArray());}
 
-if (anim==1) {
-    if (i < 3f) {
-        time = time + 0.01f;
-        i = i + 0.01f;
-    } else if (i>=3f && i<=7f) {
-        time = time - 0.01f;
-        i = i + 0.01f;
-    } else {i = 0.01f;
-            time = 0f;}
+        glUniformMatrix4fv(viewLocationCASolid1,false, camera.getViewMatrix().floatArray());
+
+        glUniformMatrix4fv(scaleMCASolid1,false,scaleMat.floatArray());
+        glUniformMatrix4fv(rotateMCASolid1,false,rotateMat.floatArray());
+        glUniform3f (lightLocationCASolid1,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
+
+        if (CASolid1 == 1){
+            buffersCASolid1.draw(GL_TRIANGLES, shaderProgramCASolid1);
+        }
+        //////////////////////// shader CASolid2
+        glUseProgram(shaderProgramCASolid2);
+
+        glUniform1f(typecoTex,coTex);
+        glUniform1f(locTime,time);
+        textureBricks.bind(shaderProgramCASolid2,"textureBricks",0);
+
+        if(projection == 1 ){
+            glUniformMatrix4fv(projectionLocationCASolid2 , false,persp.floatArray());}
+        else if(projection == 2){
+            glUniformMatrix4fv(projectionLocationCASolid2, false,ortho.floatArray());}
+
+        glUniformMatrix4fv(viewLocationCASolid2,false, camera.getViewMatrix().floatArray());
+
+        glUniformMatrix4fv(scaleMCASolid2,false,scaleMat.floatArray());
+        glUniformMatrix4fv(rotateMCASolid2,false,rotateMat.floatArray());
+        glUniform3f (lightLocationCASolid2,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
+
+        if (CASolid2 == 1){
+            buffersCASolid2.draw(GL_TRIANGLES, shaderProgramCASolid2);
+        }
+      /////////////////////////////  // shader CLSolid1
+        glUseProgram(shaderProgramCLSolid1);
+
+        glUniform1f(typecoTex,coTex);
+        glUniform1f(locTime,time);
+        textureMosaic.bind(shaderProgramCLSolid1,"textureMosaic",0);
+        if(projection == 1 ){
+            glUniformMatrix4fv(projectionLocationCLSolid1 , false,persp.floatArray());}
+        else if(projection == 2){
+            glUniformMatrix4fv(projectionLocationCLSolid1, false,ortho.floatArray());}
+        glUniformMatrix4fv(viewLocationCLSolid1,false, camera.getViewMatrix().floatArray());
+        glUniformMatrix4fv(scaleMCLSolid1,false,scaleMat.floatArray());
+        glUniformMatrix4fv(rotateMCLSolid1,false,rotateMat.floatArray());
+        glUniform3f (lightLocationCLSolid1,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
+
+        if (CLSolid1 == 1){
+            buffersCLSolid1.draw(GL_TRIANGLES, shaderProgramCLSolid1);
+        }
+        // shader CLSolid2
+        glUseProgram(shaderProgramCLSolid2);
+
+        glUniform1f(typecoTex,coTex);
+        glUniform1f(locTime,time);
+        textureMosaic.bind(shaderProgramCLSolid2,"textureMosaic",0);
+        if(projection == 1 ){
+            glUniformMatrix4fv(projectionLocationCLSolid2 , false,persp.floatArray());}
+        else if(projection == 2){
+            glUniformMatrix4fv(projectionLocationCLSolid2, false,ortho.floatArray());}
+
+        glUniformMatrix4fv(viewLocationCLSolid2,false, camera.getViewMatrix().floatArray());
+
+        glUniformMatrix4fv(scaleMCLSolid2,false,scaleMat.floatArray());
+        glUniformMatrix4fv(rotateMCLSolid2,false,rotateMat.floatArray());
+        glUniform3f (lightLocationCLSolid2,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
+
+        if (CLSolid2 == 1){
+            buffersCLSolid2.draw(GL_TRIANGLES, shaderProgramCLSolid2);
+        }
+        ///////////////////////////// shader SPSolid1
+       glUseProgram(shaderProgramSPSolid1);
+
+        glUniform1f(typecoTex,coTex);
+        glUniform1f(locTime,time);
+        texturePavement.bind(shaderProgramSPSolid1,"texturePavement",0);
+
+        if(projection == 1 ){
+            glUniformMatrix4fv(projectionLocationSPSolid1 , false,persp.floatArray());}
+        else if(projection == 2){
+            glUniformMatrix4fv(projectionLocationSPSolid1, false,ortho.floatArray());}
+
+        glUniformMatrix4fv(viewLocationSPSolid1,false, camera.getViewMatrix().floatArray());
+
+        glUniformMatrix4fv(scaleMSPSolid1,false,scaleMat.floatArray());
+        glUniformMatrix4fv(rotateMSPSolid1,false,rotateMat.floatArray());
+        glUniform3f (lightLocationSPSolid1,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
+
+        if (SPSolid1 == 1){
+            buffersSPSolid1.draw(GL_TRIANGLES, shaderProgramSPSolid1);
+        }
+
+       /////////////////////// shader SPSolid2
+        glUseProgram(shaderProgramSPSolid2);
+
+        glUniform1f(typecoTex,coTex);
+        glUniform1f(locTime,time);
+        textureFire.bind(shaderProgramSPSolid1,"textureFire",0);
+
+        if(projection == 1 ){
+            glUniformMatrix4fv(projectionLocationSPSolid2 , false,persp.floatArray());}
+        else if(projection == 2){
+            glUniformMatrix4fv(projectionLocationSPSolid2, false,ortho.floatArray());}
+        glUniformMatrix4fv(scaleMSPSolid2,false,scaleMat.floatArray());
+        glUniformMatrix4fv(rotateMSPSolid2,false,rotateMat.floatArray());
+        glUniformMatrix4fv(viewLocationSPSolid2,false, camera.getViewMatrix().floatArray());
+        glUniform3f (lightLocationSPSolid2,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
+
+        if (SPSolid2 == 1){
+            buffersSPSolid2.draw(GL_TRIANGLES, shaderProgramSPSolid2);
+        }
+
+if (anim == 1) {
+
+    ofst = Math.cos(TimeUnit.MILLISECONDS.toSeconds( (int) currentTimeMillis()*5));
+
 }
-
+       /* if (anim==1) {
+            if (i < 3f) {
+                time = Math.cos(time + 0.01);
+                i = i + 0.01f;
+            } else if (i>=3f && i<=7f) {
+                time = time - 0.01f;
+                i = i + 0.01f;
+            } else {i = 0.01f;
+                time = 0f;}
+        } */
 
     }
-
-
-
-
-
-
     private GLFWMouseButtonCallback mouseButtonCallback = new GLFWMouseButtonCallback () {
-		@Override
-		public void invoke(long window, int button, int action, int mods) {
+        @Override
+        public void invoke(long window, int button, int action, int mods) {
             if (button == GLFW_MOUSE_BUTTON_LEFT) {
                 double[] xPos = new double[1];
                 double[] yPos = new double[1];
-               glfwGetCursorPos(window, xPos, yPos);
-               oldMx = xPos[0];
-               oldMy = yPos[0];
-               mousePressed = action == GLFW_PRESS;
+                glfwGetCursorPos(window, xPos, yPos);
+                oldMx = xPos[0];
+                oldMy = yPos[0];
+                mousePressed = action == GLFW_PRESS;
             }
 
-		}
+        }
 
-	};
+    };
 
     private GLFWCursorPosCallback cursorPosCallback = new GLFWCursorPosCallback() {
         @Override
@@ -334,13 +392,13 @@ if (anim==1) {
 
     @Override
     public GLFWMouseButtonCallback getMouseCallback() {
-       return mouseButtonCallback;
+        return mouseButtonCallback;
 
     }
     @Override
     public GLFWCursorPosCallback getCursorCallback() {
-      return cursorPosCallback;
-        }
+        return cursorPosCallback;
+    }
 
     private GLFWKeyCallback keyCallback = new GLFWKeyCallback() {
         @Override
@@ -382,7 +440,7 @@ if (anim==1) {
                         break;
                     case GLFW_KEY_P:
                         if (projection == 1){
-                        projection = 2;}
+                            projection = 2;}
                         else {projection = 1;}
                         break;
                     case GLFW_KEY_C:
@@ -397,26 +455,24 @@ if (anim==1) {
                         break;
 
                     case GLFW_KEY_1:
-                        if (wave == 1){
-                            wave = 0;}
-                        else {wave  = 1;}
+                        if (CASolid1 == 1){
+                            CASolid1 = 0;}
+                        else {CASolid1  = 1;}
                         break;
-
-
                     case GLFW_KEY_2:
-                        if (spikes == 1){
-                            spikes = 0;}
-                        else {spikes  = 1;}
+                        if (CASolid2 == 1){
+                            CASolid2 = 0;}
+                        else {CASolid2  = 1;}
                         break;
                     case GLFW_KEY_3:
-                        if (juicer == 1){
-                            juicer = 0;}
-                        else {juicer  = 1;}
+                        if (CLSolid1 == 1){
+                            CLSolid1 = 0;}
+                        else {CLSolid1  = 1;}
                         break;
                     case GLFW_KEY_4:
-                        if (ball == 1){
-                            ball = 0;}
-                        else {ball  = 1;}
+                        if (CLSolid2 == 1){
+                            CLSolid2 = 0;}
+                        else {CLSolid2  = 1;}
                         break;
                     case GLFW_KEY_5:
                         if (SPSolid1 == 1){
@@ -424,14 +480,13 @@ if (anim==1) {
                         else {SPSolid1  = 1;}
                         break;
                     case GLFW_KEY_6:
-                        if (toroid == 1){
-                            toroid = 0;}
-                        else {toroid  = 1;}
+                        if (SPSolid2 == 1){
+                            SPSolid2  = 0;}
+                        else {SPSolid2   = 1;}
                         break;
 
                 }
             }
-
 
         }
     };
@@ -443,8 +498,12 @@ if (anim==1) {
     protected GLFWScrollCallback scrollCallback = new GLFWScrollCallback() {
         @Override public void invoke (long window, double dx, double dy) {
 
-            scale = (scale + (float) dy)/1;
+            scale = (scale + (float) dy);
+            if (scale >= 0) {
 
+            } else if (scale <=0){
+                scale = 0;
+            }
 
         }
     };
@@ -454,8 +513,7 @@ if (anim==1) {
 
 
 
-    }
+}
 
 
- 
 

@@ -35,10 +35,11 @@ public class GridFactory {
         }
 
 
-
-
         OGLBuffers.Attrib[] attributes = {
                 new OGLBuffers.Attrib("inPosition",2)
+
+
+
 
         };
         return new OGLBuffers(vb,attributes,ib);
