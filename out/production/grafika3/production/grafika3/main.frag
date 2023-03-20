@@ -6,7 +6,7 @@ in vec3 normala,lightDirection,viewDirection,color;
 out vec4 outColor; // output from the fragment shader
 //uniform int coTex;
 uniform sampler2D textureMosaic,textureBall8,textureBricks,textureFire,texturePavement;
-#version 330
+/*#version 330
 in vec4 outPosition;
 
 in vec3 color;
@@ -14,7 +14,7 @@ in float attenuation,coTexOut;
 flat in int typeShape;
 out vec4 outColor; // output from the fragment shader
 in vec3 normala,lightDirection,viewDirection;
-
+*/
 
 void main() {
 

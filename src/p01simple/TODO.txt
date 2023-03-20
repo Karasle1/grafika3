@@ -6,7 +6,7 @@ Shadery na tvary - done **************
 
 vypocty - 6 funkcí, dvě v kartézských, dvě ve sférických a dvě v cylindrických souřadnicích. Vždy jedna může být použita z uvedených stránek a druhou „pěknou“ navrhněte. done ***********************
 
-1 modifikovat pomoci uniform treba time
+1 modifikovat pomoci uniform treba time done ****************************
 
 zobraziot najednou nactene a vypoctene
 

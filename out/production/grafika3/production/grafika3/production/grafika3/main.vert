@@ -95,7 +95,7 @@ vec3 getBox3(vec2 vec){
 void main() {
 
 
-	if(typeSpikes == 1) {
+	/*if(typeSpikes == 1) {
 		position = inPosition;
 		typeShape = 1;
 		finalPosition = vec3(getBox(position));
@@ -111,7 +111,7 @@ void main() {
 		position = inPosition;
 		typeShape = 4;
 		finalPosition = vec3(getBox3(position));
-	}
+	} */
 
 	vec4 pos4 = vec4(finalPosition,1.0);
 

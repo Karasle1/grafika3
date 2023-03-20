@@ -38,7 +38,6 @@ void main() {
     position = inPosition;
 
     finalPosition = vec3(getCLSolid2(position));
-    typeShape = 5.0f;
     coTexOut = coTex;
     texCoord = inPosition;
     vec4 pos4 = vec4(finalPosition,1.0);

@@ -49,13 +49,13 @@ public class Renderer extends p01simple.AbstractRenderer {
             shaderProgramCASolid2,
 
             typeScale, projection = 1,SPSolid1,SPSolid2,CLSolid1, CLSolid2,CASolid1,CASolid2,
-            coTex = 1,typecoTex,locTime,typeMain,
+            coTex = 1,typecoTex,locTime,coord,deep,surfaceColor, norm,textoreCoord,distance, lightAmb,lightPos = 1,surface1 = 0,surface,typeMain,
             scaleMSPSolid1,scaleMSPSolid2,scaleMCLSolid1,scaleMCLSolid2,scaleMCASolid1,scaleMCASolid2,
             rotateMSPSolid1,rotateMSPSolid2,rotateMCLSolid1,rotateMCLSolid2,rotateMCASolid1,rotateMCASolid2;
 
     private Camera camera;
     private Mat4PerspRH persp;
-    private Vec3D lightPosition;
+    private Vec3D lightPosition, lightAmbient;
 
     private  Mat4Scale scaleMat;
     private  Mat4RotXYZ rotateMat;
@@ -76,6 +76,7 @@ public class Renderer extends p01simple.AbstractRenderer {
         OGLUtils.printLWJLparameters();
         OGLUtils.printJAVAparameters();
         OGLUtils.shaderCheck();
+        glEnable(GL_DEPTH_TEST);
 
         glClearColor(0.120f, 0.120f, 0.120f, 1f);
 
@@ -126,9 +127,15 @@ public class Renderer extends p01simple.AbstractRenderer {
         rotateMCASolid1 = glGetUniformLocation(shaderProgramCASolid1, "rotateMCASolid1");
         rotateMCASolid2 = glGetUniformLocation(shaderProgramCASolid2, "rotateMCASolid2");
 
-        //typeScale = glGetUniformLocation(shaderProgramMain, "scale");
         typecoTex = glGetUniformLocation(shaderProgramCASolid1, "coTex");
-        locTime = glGetUniformLocation(shaderProgramMain, "time");
+        coord = glGetUniformLocation(shaderProgramCASolid1, "coord");
+        deep = glGetUniformLocation(shaderProgramCASolid1, "deep");
+        surfaceColor = glGetUniformLocation(shaderProgramCASolid1, "surfaceColor");
+        norm = glGetUniformLocation(shaderProgramCASolid1, "norm");
+        textoreCoord = glGetUniformLocation(shaderProgramCASolid1, "textoreCoord");
+        distance = glGetUniformLocation(shaderProgramCASolid1, "distance");
+        surface1 = glGetUniformLocation(shaderProgramCASolid1, "surface");
+        lightAmb = glGetUniformLocation(shaderProgramCASolid1, "lightAmb");
 
 
         camera = new Camera()
@@ -150,8 +157,13 @@ public class Renderer extends p01simple.AbstractRenderer {
                 0.1,
                 50
         );
+if (lightPos == 1) {
+    lightPosition = new Vec3D(0.5f, 0.5f, 0.5f);
+} else {
+    lightPosition = new Vec3D(0.5f, 0.1f, 0.5f);
+}
+        lightAmbient = new Vec3D(1.f, 1.f, 1.f);
 
-        lightPosition =new Vec3D(5.f,5.f,5.f);
 
         buffers = p01simple.GridFactory.generateGrid(100,100);
         buffersSPSolid1 = p01simple.GridFactory.generateGrid(100,100);
@@ -183,15 +195,23 @@ public class Renderer extends p01simple.AbstractRenderer {
         else {
             glPolygonMode(GL_FRONT_AND_BACK, GL11.GL_LINE);}
 
-        float[] ambientLight = {0f, 0f, 1f,0f };
+       // float[] ambientLight = {0f, 0f, 1f,0f };
+
 
         float[] specularLight = {1f, 0f, 0f,0f };
 
         float[] diffuseLight = { 1f,0f,0f,0f };
 
-     //   textureFire.bind(shaderProgramCASolid1,"textureFire",0);
-     //   textureBall8.bind(shaderProgramMain,"textureBall8",4);
-      //  texturePavement.bind(shaderProgramMain,"texturePavement",3);
+/*
+        glBegin(GL_TRIANGLES);
+        glColor3f(1f, 0f, 0f);
+        glVertex2f(-1f, -1);
+        glColor3f(0f, 1f, 0f);
+        glVertex2f(1, 0);
+        glColor3f(0f, 0f, 1f);
+        glVertex2f(0, 1);
+        glEnd();
+*/
 
         scaleMat = new Mat4Scale(scale,scale,scale);
         rotateMat = new Mat4RotXYZ(ofst,ofst,ofst);
@@ -227,6 +247,7 @@ public class Renderer extends p01simple.AbstractRenderer {
         glUseProgram(shaderProgramCASolid1);
         glUniform1f(typecoTex,coTex);
         glUniform1f(locTime,time);
+        glUniform1i(surface1,surface);
         textureFire.bind(shaderProgramCASolid1,"textureFire",0);
 
         if(projection == 1 ){
@@ -239,6 +260,7 @@ public class Renderer extends p01simple.AbstractRenderer {
         glUniformMatrix4fv(scaleMCASolid1,false,scaleMat.floatArray());
         glUniformMatrix4fv(rotateMCASolid1,false,rotateMat.floatArray());
         glUniform3f (lightLocationCASolid1,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
+        glUniform3f (lightAmb,(float) lightAmbient.getX(),(float) lightAmbient.getY(),(float) lightAmbient.getZ());
 
         if (CASolid1 == 1){
             buffersCASolid1.draw(GL_TRIANGLES, shaderProgramCASolid1);
@@ -410,6 +432,11 @@ if (anim == 1) {
                             wire = 0;}
                         else {wire  = 1;}
                         break;
+                /*    case GLFW_KEY_R:
+                        if (lightPos == 1){
+                            lightPos = 0;}
+                        else {lightPos  = 1;}
+                        break;*/
 
                     case GLFW_KEY_W:
                         camera = camera.forward(1);
@@ -443,17 +470,35 @@ if (anim == 1) {
                             projection = 2;}
                         else {projection = 1;}
                         break;
-                    case GLFW_KEY_C:
-                        if (coTex == 1){
-                            coTex = 0;}
-                        else {coTex = 1;}
-                        break;
                     case GLFW_KEY_I:
                         if (anim == 1){
                             anim = 0;}
                         else {anim  = 1;}
                         break;
-
+                    case GLFW_KEY_T:
+                        surface = 0;
+                        break;
+                    case GLFW_KEY_X:
+                        surface = 1;
+                        break;
+                    case GLFW_KEY_V:
+                        surface = 2;
+                        break;
+                    case GLFW_KEY_B:
+                        surface = 3;
+                        break;
+                    case GLFW_KEY_C:
+                        surface = 4;
+                        break;
+                    case GLFW_KEY_N:
+                        surface = 5;
+                        break;
+                    case GLFW_KEY_Y:
+                        surface = 6;
+                        break;
+                    case GLFW_KEY_L:
+                        surface = 7;
+                        break;
                     case GLFW_KEY_1:
                         if (CASolid1 == 1){
                             CASolid1 = 0;}
