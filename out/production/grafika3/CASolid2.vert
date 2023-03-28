@@ -2,11 +2,10 @@
 in vec2 inPosition; // input from the vertex buffer
 in vec3 lightPosition;
 out vec4 outPosition;
-out vec3 normala,lightDirection,viewDirection,color;
+out vec3 normala;
 out vec2 texCoord;
-out float typeShape,attenuation,coTexOut;
-uniform float typeCASolid2,scale,coTex,time;
-uniform int tim;
+out float coTexOut;
+uniform float coTex;
 uniform mat4 viewCASolid2;
 uniform  mat4 projectionCASolid2;
 uniform  mat4 scaleMCASolid2;
@@ -35,8 +34,6 @@ void main() {
     texCoord = inPosition;
     normala = getNormal(position);
     normala = mat3(transpose(inverse(viewCASolid2 * scaleMCASolid2 * rotateMCASolid2))) * normala;
-  //  mat3 ModelView = mat3(viewCASolid2 * scaleMCASolid2 * rotateMCASolid2);
-   // normala = mat3(transpose(inverse(ModelView))) * normala;
 
     vec4 pos4 = vec4(finalPosition,1.0);
     gl_Position = projectionCASolid2 * viewCASolid2 * scaleMCASolid2 * rotateMCASolid2 * pos4;

@@ -7,6 +7,7 @@ uniform  mat4 scaleMCASolid1;
 uniform  mat4 rotateMCASolid1;
 uniform vec3 lightAmbCA1;
 uniform vec3 lightCASolid1;
+uniform int phongPartsCA1;
 out float coTexOut;
 out vec3 normala;
 out vec2 texCoord;
