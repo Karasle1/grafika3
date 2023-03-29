@@ -9,6 +9,7 @@ uniform vec3 viewPositionCLSolid1;
 uniform sampler2D textureMosaic;
 uniform int phongPartsCL1;
 uniform int reflectorCL1;
+uniform float reflectorCA1Angle;
 in float typeShape;
 out vec4 outColor; // output from the fragment shader
 vec3 res;
@@ -32,16 +33,15 @@ void main() {
     vec3 ambient = 0.5 * lightAmbCL1;
     vec3 diffuse = diff * lightAmbCL1;
     ///reflector
-    float cutOff = cos(radians(90.f));
-    float cutOffOut = cos(radians(100.f));
-    theta = dot(lightDir, normalize(-viewDir));
+    float cutOff = cos(radians(90.f+reflectorCA1Angle));
+    float cutOffOut = cos(radians(100.f+reflectorCA1Angle));
+    theta = dot(lightDir, -viewDir);
     //rozmaznuti okraju
     float epsilon   = cutOff - cutOffOut;
     float intensity = clamp((theta - cutOffOut) / epsilon, 0.0, 1.0);
 
     switch(surfaceCL1) {
         case 0:  //textura
-
             if (reflectorCL1 == 0) {
                 if (phongPartsCL1 == 0) {
                     res = attenuation * (ambient + diffuse + specular) * vec3(textureMosaic.xyz);
@@ -55,7 +55,6 @@ void main() {
                 outColor = vec4(res,1.0f);
             }
             else {
-
                 if (theta > cutOffOut)
                 {
                     diffuse *= intensity;
@@ -74,9 +73,8 @@ void main() {
             outColor =  vec4(position.rgb, 1.0);
             break;
 
-        case  2: //vzdalenost od pozorovatele
-            float distp =  distance(vec3(position.xyz), normalize(viewPositionCLSolid1));
-            outColor = vec4(distp,distp,distp,1.f);
+        case  2: //vzdalenost od pozorovatele Depth buffer
+        outColor = vec4(vec3(gl_FragCoord.z), 1.0);
             break;
 
         case  3: // barva povrchu
@@ -124,7 +122,7 @@ void main() {
             break;
 
         case  7: //osvetkeni
-            outColor =  vec4(attenuation*20,0.f,0.f,1.0f);
+            outColor =  vec4(reflectorCA1Angle*20,0.f,0.f,1.0f);
             break;
     }
 }

@@ -80,8 +80,7 @@ void main() {
             break;
 
         case  2: //vzdalenost od pozorovatele
-            float distp =  distance(vec3(position.xyz), normalize(viewPositionCASolid2));
-            outColor = vec4(distp,distp,distp,1.f);
+            outColor = vec4(vec3(gl_FragCoord.z), 1.0);
             break;
 
         case  3: // barva povrchu

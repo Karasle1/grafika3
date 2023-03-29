@@ -44,14 +44,14 @@ public class Renderer extends p01simple.AbstractRenderer {
             shaderProgramSPSolid1,shaderProgramSPSolid2,shaderProgramCLSolid1,shaderProgramCLSolid2,shaderProgramCASolid1,
             shaderProgramCASolid2,
 
-            phongParts = 0, projection = 1,SPSolid1,SPSolid2,CLSolid1, CLSolid2,CASolid1,CASolid2,reflector = 0,
+            phongParts=0, projection = 1,SPSolid1,SPSolid2,CLSolid1, CLSolid2,CASolid1,CASolid2,reflector=0,
                     phongPartsCA1,phongPartsCA2,phongPartsCL1,phongPartsCL2,phongPartsSP1,phongPartsSP2,
             coTex = 1,typecoTex,
                     lightAmbCA1,lightAmbCA2,lightAmbSP1,lightAmbSP2,lightAmbCL1,lightAmbCL2,
             lightPos = 1,surface,surfaceCA1=0,surfaceCA2=0,surfaceCL1=0,surfaceCL2=0,surfaceSP1=0,surfaceSP2=0,
             scaleMSPSolid1,scaleMSPSolid2,scaleMCLSolid1,scaleMCLSolid2,scaleMCASolid1,scaleMCASolid2,
             rotateMSPSolid1,rotateMSPSolid2,rotateMCLSolid1,rotateMCLSolid2,rotateMCASolid1,rotateMCASolid2,
-    reflectorCA1;
+    reflectorCA1,reflectorCA1Angle;
 
     private Camera camera;
     private Mat4PerspRH persp;
@@ -61,10 +61,10 @@ public class Renderer extends p01simple.AbstractRenderer {
     private  Mat4RotXYZ rotateMat;
 
     private boolean mousePressed;
-    private double oldMx, oldMy, ofst;
+    private double oldMx, oldMy, ofst,oldMxR, oldMyR;
 
     int anim = 0, wire = 0;
-    float  time=1f,i=0.1f;
+    float  time=1f,rAngle=0.f;
     double scale = 1;
     private OGLTexture2D textureFire, textureBricks,textureMosaic,textureBall8,texturePavement,textureBricksn;
     private Mat4OrthoRH ortho;
@@ -160,6 +160,7 @@ public class Renderer extends p01simple.AbstractRenderer {
         phongPartsSP2 = glGetUniformLocation(shaderProgramSPSolid2, "phongPartsSP2");
 
         reflectorCA1 = glGetUniformLocation(shaderProgramCASolid1, "reflectorCA1");
+        reflectorCA1Angle = glGetUniformLocation(shaderProgramCASolid1, "reflectorCA1Angle");
 
 
         camera = new Camera()
@@ -221,11 +222,8 @@ public class Renderer extends p01simple.AbstractRenderer {
             lightPosition = new Vec3D(5, -10, 10);
         }
 
-
         scaleMat = new Mat4Scale(scale,scale,scale);
         rotateMat = new Mat4RotXYZ(ofst,ofst,ofst);
-
-
 
         //////////////////sharder Main
 
@@ -246,6 +244,7 @@ public class Renderer extends p01simple.AbstractRenderer {
         glUniform1i(phongPartsCA1,phongParts);
         glUniform1i(surfaceCA1,surface);
         glUniform1i(reflectorCA1,reflector);
+        glUniform1f(reflectorCA1Angle,rAngle);
         textureFire.bind(shaderProgramCASolid1,"textureFire",0);
 
         if(projection == 1 ){
@@ -373,16 +372,6 @@ if (anim == 1) {
     ofst = Math.cos(TimeUnit.MILLISECONDS.toSeconds( (int) currentTimeMillis()*8));
 
 }
-       /* if (anim==1) {
-            if (i < 3f) {
-                time = Math.cos(time + 0.01);
-                i = i + 0.01f;
-            } else if (i>=3f && i<=7f) {
-                time = time - 0.01f;
-                i = i + 0.01f;
-            } else {i = 0.01f;
-                time = 0f;}
-        } */
 
     }
     private GLFWMouseButtonCallback mouseButtonCallback = new GLFWMouseButtonCallback () {
@@ -394,6 +383,14 @@ if (anim == 1) {
                 glfwGetCursorPos(window, xPos, yPos);
                 oldMx = xPos[0];
                 oldMy = yPos[0];
+                mousePressed = action == GLFW_PRESS;
+            }
+            if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+                double[] xPosR = new double[1];
+                double[] yPosR = new double[1];
+              //  glfwGetCursorPos(window, xPosR, yPosR);
+                oldMxR = xPosR[0];
+                oldMyR = yPosR[0];
                 mousePressed = action == GLFW_PRESS;
             }
 
@@ -547,7 +544,12 @@ if (anim == 1) {
                             SPSolid2  = 0;}
                         else {SPSolid2   = 1;}
                         break;
-
+                    case GLFW_KEY_KP_SUBTRACT:
+                       rAngle = rAngle - 1;
+                        break;
+                    case GLFW_KEY_KP_ADD:
+                       rAngle = rAngle + 1;
+                        break;
                 }
             }
 

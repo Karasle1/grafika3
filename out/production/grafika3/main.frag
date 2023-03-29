@@ -20,31 +20,14 @@ void main() {
 
 
 
-	if (typeShape == 1) {
-		outColor.rgb = vec3(0.224f, 0.224f, 0.224f);
+
+		outColor.rgb = vec3(1.f, 1.f, 1.f);
 		//  outColor.rgb = vec3(color);
 		outColor.a = 1.0;
 
-	} else if (typeShape == 2){
-		outColor.rgb = vec3(0.24f, 0.124f, 0.124f);
-		//  outColor.rgb = vec3(color);
-		outColor.a = 1.0;
 
-	}
 
-	else if (typeShape == 3){
-		outColor.rgb = vec3(0.124f, 0.24f, 0.124f);
-		//  outColor.rgb = vec3(color);
-		outColor.a = 1.0;
 
-	}
-
-	else if (typeShape == 4){
-		outColor.rgb = vec3(0.124f, 0.124f, 0.24f);
-		//  outColor.rgb = vec3(color);
-		outColor.a = 1.0;
-
-	}
 
 	//   outColor = vec4(color, 1);
 }

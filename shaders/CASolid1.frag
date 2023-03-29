@@ -9,6 +9,7 @@ uniform vec3 viewPositionCASolid1;
 uniform sampler2D textureFire;
 uniform int phongPartsCA1;
 uniform int reflectorCA1;
+uniform float reflectorCA1Angle;
 in float typeShape;
 out vec4 outColor; // output from the fragment shader
  vec3 res;
@@ -35,8 +36,8 @@ void main() {
     vec3 ambient = 0.5 * lightAmbCA1;
     vec3 diffuse = diff * lightAmbCA1;
 ///reflector
-    float cutOff = cos(radians(90.f));
-    float cutOffOut = cos(radians(100.f));
+    float cutOff = cos(radians(90.f+reflectorCA1Angle));
+    float cutOffOut = cos(radians(100.f+reflectorCA1Angle));
     theta = dot(lightDir, normalize(-viewDir));
 //rozmaznuti okraju
     float epsilon   = cutOff - cutOffOut;
@@ -127,7 +128,7 @@ void main() {
             break;
 
         case  7: //osvetkeni
-            outColor =  vec4(attenuation*20,0.f,0.f,1.0f);
+            outColor =  vec4(reflectorCA1Angle*20,0.f,0.f,1.0f);
             break;
     }
 }
