@@ -10,7 +10,6 @@ uniform sampler2D textureMosaic;
 //uniform sampler2D textureBricksn;
 uniform int phongPartsCL2;
 uniform int reflectorCL2;
-in float typeShape;
 out vec4 outColor; // output from the fragment shader
 vec3 res;
 float theta;

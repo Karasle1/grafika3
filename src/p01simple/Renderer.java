@@ -28,8 +28,6 @@ import org.lwjgl.glfw.GLFWMouseButtonCallback;
  * @since 2019-09-02
  */
 public class Renderer extends p01simple.AbstractRenderer {
-
-
     private OGLBuffers buffers,
             buffersSPSolid1,buffersSPSolid2,buffersCLSolid1,buffersCLSolid2,buffersCASolid1,buffersCASolid2;
     private int viewLocation, viewLocationSPSolid1,viewLocationSPSolid2,viewLocationCLSolid1,
@@ -44,18 +42,18 @@ public class Renderer extends p01simple.AbstractRenderer {
             shaderProgramSPSolid1,shaderProgramSPSolid2,shaderProgramCLSolid1,shaderProgramCLSolid2,shaderProgramCASolid1,
             shaderProgramCASolid2,
 
-            phongParts=0, projection = 1,SPSolid1,SPSolid2,CLSolid1, CLSolid2,CASolid1,CASolid2,reflector=0,
-                    phongPartsCA1,phongPartsCA2,phongPartsCL1,phongPartsCL2,phongPartsSP1,phongPartsSP2,
-            coTex = 1,typecoTex,
+            phongParts=0, projection = 1,nMaping=0,SPSolid1,SPSolid2,CLSolid1, CLSolid2,CASolid1,CASolid2,reflector=0,
+                    phongPartsCA1,phongPartsCA2,phongPartsCL1,phongPartsCL2,phongPartsSP1,phongPartsSP2,nMapingCA2,
                     lightAmbCA1,lightAmbCA2,lightAmbSP1,lightAmbSP2,lightAmbCL1,lightAmbCL2,
-            lightPos = 1,surface,surfaceCA1=0,surfaceCA2=0,surfaceCL1=0,surfaceCL2=0,surfaceSP1=0,surfaceSP2=0,
+            lightPos = 1,surface,surfaceCA1=0,surfaceCA2=0,surfaceCL1=0,surfaceCL2=0,surfaceSP1=0,surfaceSP2=0,rMoveXY,
             scaleMSPSolid1,scaleMSPSolid2,scaleMCLSolid1,scaleMCLSolid2,scaleMCASolid1,scaleMCASolid2,
             rotateMSPSolid1,rotateMSPSolid2,rotateMCLSolid1,rotateMCLSolid2,rotateMCASolid1,rotateMCASolid2,
-    reflectorCA1,reflectorCA1Angle;
+    reflectorCA1,reflectorCA1Angle,reflectorCA2,reflectorCA2Angle,reflectorCL1,reflectorCL1Angle,reflectorCL2,reflectorCL2Angle,
+                    reflectorSP1,reflectorSP1Angle,reflectorSP2,reflectorSP2Angle;
 
     private Camera camera;
     private Mat4PerspRH persp;
-    private Vec3D lightPosition, lightAmbient;
+    private Vec3D lightPosition, lightAmbient,Rmove;
 
     private  Mat4Scale scaleMat;
     private  Mat4RotXYZ rotateMat;
@@ -136,7 +134,7 @@ public class Renderer extends p01simple.AbstractRenderer {
         rotateMCASolid1 = glGetUniformLocation(shaderProgramCASolid1, "rotateMCASolid1");
         rotateMCASolid2 = glGetUniformLocation(shaderProgramCASolid2, "rotateMCASolid2");
 
-      //  typecoTex = glGetUniformLocation(shaderProgramCASolid1, "coTex");
+
 
         surfaceCA1 = glGetUniformLocation(shaderProgramCASolid1, "surfaceCA1");
         surfaceCA2 = glGetUniformLocation(shaderProgramCASolid2, "surfaceCA2");
@@ -161,6 +159,21 @@ public class Renderer extends p01simple.AbstractRenderer {
 
         reflectorCA1 = glGetUniformLocation(shaderProgramCASolid1, "reflectorCA1");
         reflectorCA1Angle = glGetUniformLocation(shaderProgramCASolid1, "reflectorCA1Angle");
+        reflectorCA2 = glGetUniformLocation(shaderProgramCASolid2, "reflectorCA2");
+        reflectorCA2Angle = glGetUniformLocation(shaderProgramCASolid2, "reflectorCA2Angle");
+        reflectorCL1 = glGetUniformLocation(shaderProgramCLSolid1, "reflectorCL1");
+        reflectorCL1Angle = glGetUniformLocation(shaderProgramCLSolid1, "reflectorCL1Angle");
+        reflectorCL2 = glGetUniformLocation(shaderProgramCLSolid2, "reflectorCL2");
+        reflectorCL2Angle = glGetUniformLocation(shaderProgramCLSolid2, "reflectorCL2Angle");
+        reflectorSP1 = glGetUniformLocation(shaderProgramSPSolid1, "reflectorSP1");
+        reflectorSP1Angle = glGetUniformLocation(shaderProgramSPSolid1, "reflectorSP1Angle");
+        reflectorSP2 = glGetUniformLocation(shaderProgramSPSolid2, "reflectorSP2");
+        reflectorSP2Angle = glGetUniformLocation(shaderProgramSPSolid2, "reflectorSP2Angle");
+
+
+        nMapingCA2 = glGetUniformLocation(shaderProgramCASolid2, "nMapingCA2");
+
+        rMoveXY = glGetUniformLocation(shaderProgramCASolid1, "rMoveXY");
 
 
         camera = new Camera()
@@ -198,7 +211,6 @@ public class Renderer extends p01simple.AbstractRenderer {
             textureBricks = new OGLTexture2D("./textures/bricks.jpg");
             textureBricksn = new OGLTexture2D("./textures/bricksn.png");
             textureMosaic = new OGLTexture2D("./textures/mosaic.jpg");
-            textureBall8 = new OGLTexture2D("./textures/pool/Ball8.jpg");
             texturePavement = new OGLTexture2D("./pavementHigh.jpg");
         } catch (IOException e) {
             e.printStackTrace();
@@ -224,6 +236,7 @@ public class Renderer extends p01simple.AbstractRenderer {
 
         scaleMat = new Mat4Scale(scale,scale,scale);
         rotateMat = new Mat4RotXYZ(ofst,ofst,ofst);
+        Rmove = new Vec3D(oldMxR,oldMyR,0.f);
 
         //////////////////sharder Main
 
@@ -240,7 +253,7 @@ public class Renderer extends p01simple.AbstractRenderer {
 
         //////////////////////// shader CASolid1
         glUseProgram(shaderProgramCASolid1);
-        glUniform1f(typecoTex,coTex);
+
         glUniform1i(phongPartsCA1,phongParts);
         glUniform1i(surfaceCA1,surface);
         glUniform1i(reflectorCA1,reflector);
@@ -254,6 +267,7 @@ public class Renderer extends p01simple.AbstractRenderer {
 
         glUniformMatrix4fv(viewLocationCASolid1,false, camera.getViewMatrix().floatArray());
         glUniform3f(viewPositionCASolid1, (float)camera.getPosition().getX(),(float)camera.getPosition().getY(),(float)camera.getPosition().getZ());
+        glUniform3f(rMoveXY, (float)Rmove.getX(),(float)Rmove.getY(),(float)Rmove.getZ());
         glUniformMatrix4fv(scaleMCASolid1,false,scaleMat.floatArray());
         glUniformMatrix4fv(rotateMCASolid1,false,rotateMat.floatArray());
         glUniform3f (lightLocationCASolid1,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
@@ -264,9 +278,12 @@ public class Renderer extends p01simple.AbstractRenderer {
         }
         //////////////////////// shader CASolid2
         glUseProgram(shaderProgramCASolid2);
-        glUniform1f(typecoTex,coTex);
+
         glUniform1i(phongPartsCA2,phongParts);
         glUniform1i(surfaceCA2,surface);
+        glUniform1i(reflectorCA2,reflector);
+        glUniform1f(reflectorCA2Angle,rAngle);
+        glUniform1i(nMapingCA2,nMaping);
         textureBricks.bind(shaderProgramCASolid2,"textureBricks",0);
         textureBricksn.bind(shaderProgramCASolid2,"textureBricksn",1);
 
@@ -287,29 +304,34 @@ public class Renderer extends p01simple.AbstractRenderer {
       /////////////////////////////  // shader CLSolid1
         glUseProgram(shaderProgramCLSolid1);
 
-        glUniform1f(typecoTex,coTex);
         glUniform1i(phongPartsCL1,phongParts);
         glUniform1i(surfaceCL1,surface);
+        glUniform1i(reflectorCL1,reflector);
+        glUniform1f(reflectorCL1Angle,rAngle);
         textureMosaic.bind(shaderProgramCLSolid1,"textureMosaic",0);
+
         if(projection == 1 ){
             glUniformMatrix4fv(projectionLocationCLSolid1 , false,persp.floatArray());}
         else if(projection == 2){
             glUniformMatrix4fv(projectionLocationCLSolid1, false,ortho.floatArray());}
+
         glUniformMatrix4fv(viewLocationCLSolid1,false, camera.getViewMatrix().floatArray());
         glUniform3f(viewPositionCLSolid1, (float)camera.getPosition().getX(),(float)camera.getPosition().getY(),(float)camera.getPosition().getZ());
         glUniformMatrix4fv(scaleMCLSolid1,false,scaleMat.floatArray());
         glUniformMatrix4fv(rotateMCLSolid1,false,rotateMat.floatArray());
         glUniform3f (lightLocationCLSolid1,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
         glUniform3f (lightAmbCL1,(float) lightAmbient.getX(),(float) lightAmbient.getY(),(float) lightAmbient.getZ());
+
         if (CLSolid1 == 1){
             buffersCLSolid1.draw(GL_TRIANGLES, shaderProgramCLSolid1);
         }
         // shader CLSolid2
         glUseProgram(shaderProgramCLSolid2);
 
-        glUniform1f(typecoTex,coTex);
         glUniform1i(phongPartsCL2,phongParts);
         glUniform1i(surfaceCL2,surface);
+        glUniform1i(reflectorCL2,reflector);
+        glUniform1f(reflectorCL2Angle,rAngle);
         textureMosaic.bind(shaderProgramCLSolid2,"textureMosaic",0);
         if(projection == 1 ){
             glUniformMatrix4fv(projectionLocationCLSolid2 , false,persp.floatArray());}
@@ -327,9 +349,10 @@ public class Renderer extends p01simple.AbstractRenderer {
         ///////////////////////////// shader SPSolid1
        glUseProgram(shaderProgramSPSolid1);
 
-        glUniform1f(typecoTex,coTex);
         glUniform1i(phongPartsSP1,phongParts);
         glUniform1i(surfaceSP1,surface);
+        glUniform1i(reflectorSP1,reflector);
+        glUniform1f(reflectorSP1Angle,rAngle);
         texturePavement.bind(shaderProgramSPSolid1,"texturePavement",0);
 
         if(projection == 1 ){
@@ -349,9 +372,10 @@ public class Renderer extends p01simple.AbstractRenderer {
        /////////////////////// shader SPSolid2
         glUseProgram(shaderProgramSPSolid2);
 
-        glUniform1f(typecoTex,coTex);
         glUniform1i(phongPartsSP2,phongParts);
         glUniform1i(surfaceSP2,surface);
+        glUniform1i(reflectorSP2,reflector);
+        glUniform1f(reflectorSP2Angle,rAngle);
         textureFire.bind(shaderProgramSPSolid2,"textureFire",0);
 
         if(projection == 1 ){
@@ -377,20 +401,12 @@ if (anim == 1) {
     private GLFWMouseButtonCallback mouseButtonCallback = new GLFWMouseButtonCallback () {
         @Override
         public void invoke(long window, int button, int action, int mods) {
-            if (button == GLFW_MOUSE_BUTTON_LEFT) {
+            if (button == 0) {
                 double[] xPos = new double[1];
                 double[] yPos = new double[1];
                 glfwGetCursorPos(window, xPos, yPos);
                 oldMx = xPos[0];
                 oldMy = yPos[0];
-                mousePressed = action == GLFW_PRESS;
-            }
-            if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-                double[] xPosR = new double[1];
-                double[] yPosR = new double[1];
-              //  glfwGetCursorPos(window, xPosR, yPosR);
-                oldMxR = xPosR[0];
-                oldMyR = yPosR[0];
                 mousePressed = action == GLFW_PRESS;
             }
 
@@ -413,6 +429,8 @@ if (anim == 1) {
 
     @Override
     public GLFWMouseButtonCallback getMouseCallback() {
+
+
         return mouseButtonCallback;
 
     }
@@ -490,6 +508,11 @@ if (anim == 1) {
                             lightPos = 0;}
                         else {lightPos  = 1;}
                         break;
+                    case GLFW_KEY_Q:
+                        if (nMaping == 1){
+                            nMaping = 0;}
+                        else {nMaping  = 1;}
+                        break;
                     case GLFW_KEY_T:
                         surface = 0;
                         break;
@@ -549,6 +572,19 @@ if (anim == 1) {
                         break;
                     case GLFW_KEY_KP_ADD:
                        rAngle = rAngle + 1;
+                        break;
+
+                    case GLFW_KEY_KP_8:
+                        oldMxR = oldMxR + 0.1f;
+                        break;
+                    case GLFW_KEY_KP_2:
+                        oldMxR = oldMxR - 0.1f;
+                        break;
+                    case GLFW_KEY_KP_4:
+                        oldMyR = oldMyR - 0.1f;
+                        break;
+                    case GLFW_KEY_KP_6:
+                        oldMyR = oldMyR + 0.1f;
                         break;
                 }
             }

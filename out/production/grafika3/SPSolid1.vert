@@ -2,11 +2,10 @@
 in vec2 inPosition; // input from the vertex buffer
 in vec3 lightPosition;
 out vec4 outPosition;
-out vec3 normala,lightDirection,viewDirection,color;
+out vec3 normala;
 out vec2 texCoord;
 out float typeShape,attenuation,coTexOut;
 uniform float typeSPSolid1,scale,coTex,time;
-uniform int tim;
 uniform mat4 viewSPSolid1;
 uniform  mat4 projectionSPSolid1;
 uniform  mat4 scaleMSPSolid1;
@@ -14,7 +13,6 @@ uniform  mat4 rotateMSPSolid1;
 vec3 finalPosition;
 vec2 position;
 float PI = 3.14159, scale1;
-// mat3 modelView;
 vec4 pos4;
 
 vec3 getSPSolid1(vec2 vec){
@@ -50,6 +48,6 @@ void main() {
 
 
     gl_Position = projectionSPSolid1 * viewSPSolid1 * scaleMSPSolid1 * rotateMSPSolid1 * pos4;
-    outPosition = gl_Position;
+    outPosition = pos4;
 
 }

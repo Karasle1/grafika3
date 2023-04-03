@@ -1,14 +1,9 @@
 #version 330
 in vec2 inPosition; // input from the vertex buffer
-uniform float coTex;
 uniform mat4 viewCASolid1;
 uniform  mat4 projectionCASolid1;
 uniform  mat4 scaleMCASolid1;
 uniform  mat4 rotateMCASolid1;
-uniform vec3 lightAmbCA1;
-uniform vec3 lightCASolid1;
-uniform int phongPartsCA1;
-out float coTexOut;
 out vec3 normala;
 out vec2 texCoord;
 out vec4 outPosition;
@@ -32,7 +27,6 @@ void main() {
 
     position = inPosition * 2 -1;
     finalPosition = vec3(getCASolid1(position))*5;
-    coTexOut = coTex;
     texCoord = inPosition;
     normala = getNormal(position);
     normala = mat3(transpose(inverse(mat3(viewCASolid1 * scaleMCASolid1 * rotateMCASolid1)))) * normala;

@@ -34,12 +34,41 @@ public class GridFactory {
 
         }
 
-
         OGLBuffers.Attrib[] attributes = {
                 new OGLBuffers.Attrib("inPosition",2)
 
 
 
+
+        };
+        return new OGLBuffers(vb,attributes,ib);
+
+    }
+
+    static OGLBuffers generateFan(int m){
+
+        float[] vb = new float [3*m];
+        int index = 0;
+        int first = 0;
+        int ii=0;
+
+        for (int i = 0; i < 100; i++) {
+                vb[index++] = first;
+                vb[index++] = ii+1;
+                vb[index++] = ii+1;
+                ii = ii-1;
+        }
+
+        int[] ib = new int[3 * m];
+        int index2 = 0;
+            for (int j=0 ;j < m-1;j++ ){
+                ib[index2++] = j;
+                ib[index2++] = j+1;
+                ib[index2++] = j+1;
+            }
+
+        OGLBuffers.Attrib[] attributes = {
+                new OGLBuffers.Attrib("inPosition",2)
 
         };
         return new OGLBuffers(vb,attributes,ib);

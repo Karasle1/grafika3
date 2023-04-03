@@ -10,24 +10,28 @@ uniform sampler2D textureBricks;
 uniform sampler2D textureBricksn;
 uniform int phongPartsCA2;
 uniform int reflectorCA2;
+uniform int nMapingCA2;
 in float typeShape;
 out vec4 outColor; // output from the fragment shader
 vec3 res;
 float theta;
+vec3 nNormala;
 
 void main() {
     vec4 position = normalize(outPosition);
     vec4 textureBricks = texture(textureBricks, texCoord);
     vec4 textureBricksn = texture(textureBricksn, texCoord);
- //   vec3 nNormala = normalize(normala);
-    vec3 nNormala = textureBricksn.xyz;
-
-      nNormala = normalize(nNormala * 2.0 - 1.0);
-
+ //
+   if (nMapingCA2 == 1){
+        nNormala = textureBricksn.xyz;
+        nNormala = normalize(nNormala * 2.0 - 1.0);
+    }else {
+      nNormala = normalize(normala);
+        };
     float specularStrength = 0.5;
-    vec3 viewDir = normalize(normalize(viewPositionCASolid2) - position.rgb);
+    vec3 viewDir = normalize(normalize(viewPositionCASolid2) - position.xyz);
     vec3 reflectDir = reflect(lightCASolid2, nNormala);
-    vec3 lightDir = normalize(lightCASolid2 - position.rgb);
+    vec3 lightDir = normalize(lightCASolid2 - position.xyz);
     float diff = max(dot(nNormala, lightDir),0.0);
     float  attenuation = clamp( 10.0 /distance(lightCASolid2,vec3(position.xyz)), 0.0, 1.0);
     vec3 halfwayDir = normalize(lightDir + viewDir);
@@ -76,11 +80,13 @@ void main() {
             break;
 
         case 1: //souradnice
-            outColor =  vec4(position.xyz, 1.0);
+            outColor =  vec4(-position.x*10,-position.y*10,position.z,1.f);
             break;
 
         case  2: //vzdalenost od pozorovatele
-            outColor = vec4(vec3(gl_FragCoord.z), 1.0);
+    //    outColor = vec4(vec3(gl_FragCoord.z),1.f);
+            outColor =  vec4(vec3(position.rgb-(normalize(viewPositionCASolid2))),1.f);
+
             break;
 
         case  3: // barva povrchu
@@ -101,10 +107,9 @@ void main() {
 
                 if(theta > cutOffOut)
                 {
-
                     diffuse  *= intensity;
                     specular *= intensity;
-                    res = (ambient + diffuse ) * vec3(0.128, 0.28, 0.128);
+                    res = attenuation *  (ambient + diffuse + specular ) * vec3(0.128, 0.28, 0.128);
                 }else {
 
                     res = (ambient) * vec3(0.128, 0.28, 0.128);
@@ -123,12 +128,12 @@ void main() {
             break;
 
         case  6: //vzdalenost od svetla
-            float dist =  distance(vec3(position.xyz), normalize(lightCASolid2));
+            float dist =  distance(vec3(position.rgb), normalize(lightCASolid2.rgb));
             outColor =  vec4(dist,dist,dist,1.f);
             break;
 
         case  7: //osvetkeni
-            outColor =  vec4(attenuation*20,0.f,0.f,1.0f);
+            outColor =  vec4(nMapingCA2*20,0.f,0.f,1.0f);
             break;
     }
 }
