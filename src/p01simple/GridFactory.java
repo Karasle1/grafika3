@@ -72,10 +72,69 @@ public class GridFactory {
 
         };
         return new OGLBuffers(vb,attributes,ib);
+    }
+    static OGLBuffers generateSkybox(){
+
+        float vb[] = {
+
+                0f,  1.0f, 0f,
+                0f, 0f, 0f,
+                1.0f, 0f, 0f,
+                1.0f, 0f, 0f,
+                1.0f,  1.0f, 0f,
+                0f,  1.0f, 0f,
 
 
+                0f, 0f,  1.0f,
+                0f, 0f, 0f,
+                0f,  1.0f, 0f,
+                0f,  1.0f, 0f,
+                0f,  1.0f,  1.0f,
+                0f, 0f,  1.0f,
+
+                1.0f, 0f, 0f,
+                1.0f, 0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f, 0f,
+                1.0f, 0f, 0f,
+
+                0f, 0f,  1.0f,
+                0f,  1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f, 0f,  1.0f,
+                0f, 0f,  1.0f,
+
+                0f,  1.0f, 0f,
+                1.0f,  1.0f, 0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                0f,  1.0f,  1.0f,
+                0f,  1.0f, 0f,
+
+                0f, 0f, 0f,
+                0f, 0f,  1.0f,
+                1.0f, 0f, 0f,
+                1.0f, 0f, 0f,
+                0f, 0f,  1.0f,
+                1.0f, 0f,  1.0f
+        };
+        int[] ib = new int[36];
+
+        for (int i = 0; i < 36 ; i++ ) {
+
+
+                ib[i] = i;
+
+            }
+
+        OGLBuffers.Attrib[] attributes = {
+                new OGLBuffers.Attrib("inPosition",3)
+
+        };
+        return new OGLBuffers(vb,attributes,ib);
 
     }
-
 
 }

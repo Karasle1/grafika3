@@ -2,6 +2,8 @@
 in vec4 outPosition;
 in vec2 texCoord;
 in vec3 normala;
+in vec4 viewPos;
+in vec4 lightPositionView;
 uniform int surfaceSP1;
 uniform vec3 lightSPSolid1;
 uniform vec3 lightAmbSP1;
@@ -23,11 +25,11 @@ void main() {
     //   nNormala = normalize(nNormala * 2.0 - 1.0);
 
     float specularStrength = 0.5;
-    vec3 viewDir = normalize(normalize(viewPositionSPSolid1) - position.rgb);
-    vec3 reflectDir = reflect(lightSPSolid1, nNormala);
-    vec3 lightDir = normalize(lightSPSolid1 - position.rgb);
+    vec3 viewDir = (viewPos.xyz - position.xyz);
+    vec3 reflectDir = reflect(lightPositionView.xyz, nNormala);
+    vec3 lightDir = (lightPositionView.xzy - viewPos.xyz);
     float diff = max(dot(nNormala, lightDir),0.0);
-    float  attenuation = clamp( 10.0 /distance(lightSPSolid1,vec3(position.xyz)), 0.0, 1.0);
+    float  attenuation = clamp( 10.0 /distance(lightPositionView.xyz,vec3(position.xyz)), 0.0, 1.0);
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(nNormala, halfwayDir), 0.0), 0.32);
     ///blinn phong
@@ -121,12 +123,12 @@ void main() {
             break;
 
         case  6: //vzdalenost od svetla
-            float dist =  distance(vec3(position.xyz), normalize(lightSPSolid1));
+            float dist =  distance(lightPositionView.xyz,position.rgb);
             outColor =  vec4(dist,dist,dist,1.f);
             break;
 
-        case  7: //osvetkeni
-            outColor =  vec4(reflectorSP1Angle*20,0.f,0.f,1.0f);
+        case  7: //test
+         //   outColor =  vec4(reflectorSP1Angle*20,0.f,0.f,1.0f);
             break;
     }
 }

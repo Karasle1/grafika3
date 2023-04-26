@@ -1,7 +1,10 @@
 #version 330
 in vec4 outPosition;
-in vec2 texCoord;
 in vec3 normala;
+in vec4 viewPos;
+in vec4 lightPositionView;
+in vec2 texCoord;
+
 uniform int surfaceCA1;
 uniform vec3 lightCASolid1;
 uniform vec3 lightAmbCA1;
@@ -11,6 +14,7 @@ uniform sampler2D textureFire;
 uniform int phongPartsCA1;
 uniform int reflectorCA1;
 uniform float reflectorCA1Angle;
+
 out vec4 outColor; // output from the fragment shader
 vec3 res;
 float theta;
@@ -20,19 +24,12 @@ void main() {
     vec4 textureFire = texture(textureFire, texCoord);
     vec3 nNormala = normalize(normala);
 
- //   if (nMapingCA2 == 1){
-   //     nNormala = textureBricksn.xyz;
-  //      nNormala = normalize(nNormala * 2.0 - 1.0);
- //   }else {
- //       nNormala = normalize(normala);
- //   };
-
-    float specularStrength = 0.5;
-    vec3 viewDir = normalize(normalize(viewPositionCASolid1) - position.rgb);
-    vec3 reflectDir = reflect(lightCASolid1, nNormala);
-    vec3 lightDir = normalize(lightCASolid1 - (position.rgb+rMoveXY));
+    float specularStrength = 0.9;
+    vec3 viewDir = (viewPos.xyz - position.xyz);
+    vec3 reflectDir = reflect(lightPositionView.xyz, nNormala);
+    vec3 lightDir = (lightPositionView.xzy - viewPos.xyz);
     float diff = max(dot(nNormala, lightDir),0.0);
-    float  attenuation = clamp( 10.0 /distance(lightCASolid1,vec3(position.xyz)), 0.0, 1.0);
+    float  attenuation = clamp( 10.0 /distance(lightPositionView.xyz,vec3(position.xyz)), 0.0, 1.0);
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(nNormala, halfwayDir), 0.0), 0.32);
 ///blinn phong
@@ -40,8 +37,8 @@ void main() {
     vec3 ambient = 0.5 * lightAmbCA1;
     vec3 diffuse = diff * lightAmbCA1;
 ///reflector
-    float cutOff = cos(radians(90.f+reflectorCA1Angle));
-    float cutOffOut = cos(radians(100.f+reflectorCA1Angle));
+    float cutOff = cos(radians(10.f+reflectorCA1Angle));
+    float cutOffOut = cos(radians(20.f+reflectorCA1Angle));
     theta = dot(lightDir, normalize(-viewDir));
 //rozmaznuti okraju
     float epsilon   = cutOff - cutOffOut;
@@ -84,7 +81,7 @@ void main() {
 
         case  2: //vzdalenost od pozorovatele
     //    outColor = vec4(vec3(gl_FragCoord.z),1.f);
-        outColor =  vec4(vec3(position.rgb-(normalize(viewPositionCASolid1))),1.f);
+        outColor =  vec4(vec3(position.rgb-(viewPos.xyz)),1.f);
 
         break;
 
@@ -127,12 +124,12 @@ void main() {
             break;
 
         case  6: //vzdalenost od svetla
-            float dist =  distance(normalize(lightCASolid1),position.rgb);
+            float dist = distance(lightPositionView.xyz,position.rgb);
             outColor =  vec4(dist,dist,dist,1.f);
             break;
 
-        case  7: //osvetkeni
-            outColor =  vec4(rMoveXY*20,1.0f);
+        case  7: //test
+         //   outColor =  vec4(rMoveXY*20,1.0f);
             break;
     }
 }

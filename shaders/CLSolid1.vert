@@ -5,22 +5,21 @@ uniform mat4 viewCLSolid1;
 uniform  mat4 projectionCLSolid1;
 uniform  mat4 scaleMCLSolid1;
 uniform  mat4 rotateMCLSolid1;
+uniform vec3 lightCLSolid1;
 out vec4 outPosition2;
 out vec3 normala;
 out vec2 texCoord;
+out vec4 viewPos;
+out vec4 lightPositionView;
 vec3 finalPosition;
 float PI = 3.14159;
 vec4 pos4;
 
 vec3 getNormal(vec3 vec){
 
-    float z = vec.z;
-    float x = cos(vec.x); //* cos(phi);
-    float y = vec.y; //* cos(phi);
-
-    normala = normalize(vec3(x,y,z));
-
-    return normala;
+    vec3 u = vec3((vec.xy + vec2(0.0001,0.)) - (vec.xy - vec2(0.0001,0.)),vec.z);
+    vec3 v = vec3((vec.xy + vec2(0.,0.0001)) - (vec.xy - vec2(0.,0.0001)),vec.z);
+    return cross(u,v);
 }
 
 vec3 getCLSolid1(vec2 vec){
@@ -47,6 +46,9 @@ void main() {
 
     normala = getNormal(finalPosition);
     normala = mat3(transpose(inverse(mat3(viewCLSolid1 * scaleMCLSolid1 * rotateMCLSolid1)))) * normala;
+
+    lightPositionView = normalize(viewCLSolid1 * vec4(lightCLSolid1,0.));
+    viewPos = normalize(viewCLSolid1 *  pos4);
 
     gl_Position = projectionCLSolid1 * viewCLSolid1 * scaleMCLSolid1 * rotateMCLSolid1 * pos4;
     outPosition2 = pos4;

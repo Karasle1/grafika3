@@ -1,5 +1,6 @@
 package p01simple;
 
+import lwjglutils.*;
 import lwjglutils.OGLBuffers;
 import lwjglutils.OGLTexture2D;
 import lwjglutils.OGLUtils;
@@ -29,7 +30,7 @@ import org.lwjgl.glfw.GLFWMouseButtonCallback;
  */
 public class Renderer extends p01simple.AbstractRenderer {
     private OGLBuffers buffers,
-            buffersSPSolid1,buffersSPSolid2,buffersCLSolid1,buffersCLSolid2,buffersCASolid1,buffersCASolid2;
+            buffersSPSolid1,buffersSPSolid2,buffersCLSolid1,buffersCLSolid2,buffersCASolid1,buffersCASolid2,buffersSky;
     private int viewLocation, viewLocationSPSolid1,viewLocationSPSolid2,viewLocationCLSolid1,
             viewLocationCLSolid2,viewLocationCASolid1,viewLocationCASolid2,
             viewPositionSPSolid1,viewPositionSPSolid2,viewPositionCLSolid1,
@@ -64,7 +65,8 @@ public class Renderer extends p01simple.AbstractRenderer {
     int anim = 0, wire = 0;
     float  time=1f,rAngle=0.f;
     double scale = 1;
-    private OGLTexture2D textureFire, textureBricks,textureMosaic,textureBall8,texturePavement,textureBricksn;
+    private OGLTexture2D textureFire, textureBricks,textureMosaic,texturePavement,textureBricksn;
+    private lwjglutils.OGLTextureCube textureSky;
     private Mat4OrthoRH ortho;
 
 
@@ -178,9 +180,12 @@ public class Renderer extends p01simple.AbstractRenderer {
 
         camera = new Camera()
                 //    .withPosition(new Vec3D(10, 10, 6))
-                .withPosition(new Vec3D(25, 8, 6))
-                .withAzimuth(5 / 1f * Math.PI)
-                .withZenith(-1 / 30f * Math.PI);
+             //   .withPosition(new Vec3D(25, 8., 5.))
+                .withPosition(new Vec3D(0., 0., 0.))
+          //      .withAzimuth(5.f * Math.PI)
+                .withAzimuth(0.5f * Math.PI)
+          //      .withZenith(-1 / 30f * Math.PI);
+                .withZenith(-1/2f * Math.PI);
 
         persp = new Mat4PerspRH(
                 Math.PI / 3f,
@@ -199,6 +204,7 @@ public class Renderer extends p01simple.AbstractRenderer {
         lightAmbient = new Vec3D(1.f, 1.f, 1.f);
 
         buffers = p01simple.GridFactory.generateGrid(100,100);
+        buffersSky = p01simple.GridFactory.generateSkybox();
         buffersSPSolid1 = p01simple.GridFactory.generateGrid(100,100);
         buffersSPSolid2 = p01simple.GridFactory.generateGrid(100,100);
         buffersCLSolid1 = p01simple.GridFactory.generateGrid(100,100);
@@ -212,6 +218,8 @@ public class Renderer extends p01simple.AbstractRenderer {
             textureBricksn = new OGLTexture2D("./textures/bricksn.png");
             textureMosaic = new OGLTexture2D("./textures/mosaic.jpg");
             texturePavement = new OGLTexture2D("./pavementHigh.jpg");
+            textureSky = new lwjglutils.OGLTextureCube(new String[]{"./textures/skyBox_right.jpg","./textures/skyBox_left.jpg","./textures/skyBox_top.jpg","./textures/skyBox_bottom.jpg",
+                    "./textures/skyBox_front.jpg","./textures/skyBox_back.jpg"});
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -229,7 +237,7 @@ public class Renderer extends p01simple.AbstractRenderer {
             glPolygonMode(GL_FRONT_AND_BACK, GL11.GL_LINE);}
 
         if (lightPos == 1) {
-            lightPosition = new Vec3D(0, 10, 10);
+            lightPosition = new Vec3D(0., 20., 10.);
         } else {
             lightPosition = new Vec3D(5, -10, 10);
         }
@@ -247,9 +255,12 @@ public class Renderer extends p01simple.AbstractRenderer {
         else if(projection == 2){
             glUniformMatrix4fv(projectionLocation, false,ortho.floatArray());}
 
+        textureSky.bind(shaderProgramMain,"textureSky",0);
+
         glUniformMatrix4fv(viewLocation,false, camera.getViewMatrix().floatArray());
         glUniform3f (lightLocation,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
-        buffers.draw(GL_TRIANGLES, shaderProgramMain);
+     //   buffers.draw(GL_TRIANGLES, shaderProgramMain);
+        buffersSky.draw(GL_TRIANGLES, shaderProgramMain);
 
         //////////////////////// shader CASolid1
         glUseProgram(shaderProgramCASolid1);
