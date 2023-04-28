@@ -8,7 +8,8 @@ uniform int surfaceSP1;
 uniform vec3 lightSPSolid1;
 uniform vec3 lightAmbSP1;
 uniform vec3 viewPositionSPSolid1;
-uniform sampler2D texturePavement;
+//uniform sampler2D texturePavement;
+uniform samplerCube textureSky;
 uniform int phongPartsSP1;
 uniform int reflectorSP1;
 uniform float reflectorSP1Angle;
@@ -18,16 +19,20 @@ float theta;
 
 void main() {
     vec4 position = normalize(outPosition);
-    vec4 texturePavement = texture(texturePavement, texCoord);
+ //   vec4 texturePavement = texture(texturePavement, texCoord);
     vec3 nNormala = normalize(normala);
     //   nNormala = texture(normalMap, texCoord;
 
     //   nNormala = normalize(nNormala * 2.0 - 1.0);
 
+    vec3 viewVec = normalize(position.xyz - viewPos.xyz);
+    vec3 textureVec = reflect(-viewVec, nNormala);
+    vec4 textureS = texture(textureSky, textureVec);
+
     float specularStrength = 0.5;
     vec3 viewDir = (viewPos.xyz - position.xyz);
     vec3 reflectDir = reflect(lightPositionView.xyz, nNormala);
-    vec3 lightDir = (lightPositionView.xzy - viewPos.xyz);
+    vec3 lightDir = (lightPositionView.xyz - viewPos.xyz);
     float diff = max(dot(nNormala, lightDir),0.0);
     float  attenuation = clamp( 10.0 /distance(lightPositionView.xyz,vec3(position.xyz)), 0.0, 1.0);
     vec3 halfwayDir = normalize(lightDir + viewDir);
@@ -49,13 +54,13 @@ void main() {
 
             if (reflectorSP1 == 0) {
                 if (phongPartsSP1 == 0) {
-                    res = attenuation * (ambient + diffuse + specular) * vec3(texturePavement.xyz);
+                    res = attenuation * (ambient + diffuse + specular) * vec3(textureS.xyz);
                 }else if(phongPartsSP1 == 1) {
-                    res = (ambient) * vec3(texturePavement.xyz);
+                    res = (ambient) * vec3(textureS.xyz);
                 }else if(phongPartsSP1 == 2) {
-                    res = (diffuse) * vec3(texturePavement.xyz);
+                    res = (diffuse) * vec3(textureS.xyz);
                 }else if(phongPartsSP1 == 3) {
-                    res = (specular) * vec3(texturePavement.xyz);
+                    res = (specular) * vec3(textureS.xyz);
                 }
                 outColor = vec4(res,1.0f);
             }
@@ -65,11 +70,11 @@ void main() {
                 {
                     diffuse *= intensity;
                     specular *= intensity;
-                    res = attenuation * (ambient + diffuse + specular) * vec3(texturePavement.xyz);
+                    res = attenuation * (ambient + diffuse + specular) * vec3(textureS.xyz);
                 } else
                 {
 
-                    res = (ambient) * vec3(texturePavement.xyz);
+                    res = (ambient) * vec3(textureS.xyz);
                 }
                 outColor = vec4(res, 1.0f);
             }
@@ -127,8 +132,11 @@ void main() {
             outColor =  vec4(dist,dist,dist,1.f);
             break;
 
-        case  7: //test
-         //   outColor =  vec4(reflectorSP1Angle*20,0.f,0.f,1.0f);
+        case  7:
+         //
+
+          outColor = vec4((attenuation * (ambient + diffuse + specular) * vec3(textureS.xyz)),1.0f);
+         //  outColor = textureS;
             break;
     }
 }

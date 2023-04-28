@@ -16,12 +16,7 @@ vec2 position;
 float PI = 3.14159, scale1;
 vec4 pos4;
 
-vec3 getNormal(vec3 vec) {
 
-    vec3 u = vec3((vec.xy + vec2(0.0001, 0.)) - (vec.xy - vec2(0.0001, 0.)), vec.z);
-    vec3 v = vec3((vec.xy + vec2(0., 0.0001)) - (vec.xy - vec2(0., 0.0001)), vec.z);
-    return cross(u, v);
-}
 vec3 getSPSolid2(vec2 vec){
 
 	float phi = -PI/2 + PI * vec.x;
@@ -34,12 +29,18 @@ vec3 getSPSolid2(vec2 vec){
 
      return vec3(x,y,z);
 }
+vec3 getNormal(vec2 pos) {
+
+    vec3 u = getSPSolid2(pos + vec2(0.0001, 0.)) - getSPSolid2(pos- vec2(0.0001, 0.));
+    vec3 v = getSPSolid2(pos + vec2(0., 0.0001)) - getSPSolid2(pos- vec2(0., 0.0001));
+    return cross(u, v);
+}
 
 void main() {
     position = inPosition;
     texCoord = inPosition;
     finalPosition = vec3(getSPSolid2(position));
-    normala = getNormal(finalPosition);
+    normala = getNormal(position);
     normala = mat3(transpose(inverse(mat3(viewSPSolid2 * scaleMSPSolid2 * rotateMSPSolid2)))) * normala;
     vec4 pos4 = vec4(finalPosition,1.0);
     lightPositionView = normalize(viewSPSolid2 * vec4(lightSPSolid2,0.));

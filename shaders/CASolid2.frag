@@ -13,6 +13,7 @@ uniform sampler2D textureBricksn;
 uniform int phongPartsCA2;
 uniform int reflectorCA2;
 uniform int nMapingCA2;
+uniform samplerCube textureSky;
 in float typeShape;
 out vec4 outColor; // output from the fragment shader
 vec3 res;
@@ -30,6 +31,11 @@ void main() {
     }else {
       nNormala = normalize(normala);
         };
+
+    vec3 viewVec = normalize(position.xyz - viewPos.xyz);
+    vec3 textureVec = reflect(-viewVec, nNormala);
+    vec4 textureS = texture(textureSky, textureVec);
+
     float specularStrength = 0.5;
     vec3 viewDir = (viewPos.xyz - position.xyz);
     vec3 reflectDir = reflect(lightPositionView.xyz, nNormala);

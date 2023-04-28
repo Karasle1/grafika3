@@ -18,12 +18,7 @@ float PI = 3.14159;
 
 vec4 pos4;
 
-vec3 getNormal(vec3 vec) {
 
-    vec3 u = vec3((vec.xy + vec2(0.0001, 0.)) - (vec.xy - vec2(0.0001, 0.)), vec.z);
-    vec3 v = vec3((vec.xy + vec2(0., 0.0001)) - (vec.xy - vec2(0., 0.0001)), vec.z);
-    return cross(u, v);
-}
 
 vec3 getCLSolid2(vec2 vec){
     // carhesian to cylindirc
@@ -37,12 +32,17 @@ vec3 getCLSolid2(vec2 vec){
 
     return vec3(x,y,z);
 }
+vec3 getNormal(vec2 pos) {
 
+    vec3 u = getCLSolid2(pos + vec2(0.0001, 0.)) - getCLSolid2(pos- vec2(0.0001, 0.));
+    vec3 v = getCLSolid2(pos + vec2(0., 0.0001)) - getCLSolid2(pos- vec2(0., 0.0001));
+    return cross(u, v);
+}
 void main() {
 
     position = inPosition;
-    finalPosition = vec3(getCLSolid2(position));
-    normala = getNormal(finalPosition);
+    finalPosition = vec3(getCLSolid2(position*0.1));
+    normala = getNormal(finalPosition.xy);
     normala = mat3(transpose(inverse(mat3(viewCLSolid2 * scaleMCLSolid2 * rotateMCLSolid2)))) * normala;
     vec4 pos4 = vec4(finalPosition,1.0);
     texCoord = inPosition;

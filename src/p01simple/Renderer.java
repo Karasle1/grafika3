@@ -66,7 +66,7 @@ public class Renderer extends p01simple.AbstractRenderer {
     float  time=1f,rAngle=0.f;
     double scale = 1;
     private OGLTexture2D textureFire, textureBricks,textureMosaic,texturePavement,textureBricksn;
-    private lwjglutils.OGLTextureCube textureSky;
+    private lwjglutils.OGLTextureCube textureSky,textureSky1;
     private Mat4OrthoRH ortho;
 
 
@@ -181,11 +181,13 @@ public class Renderer extends p01simple.AbstractRenderer {
         camera = new Camera()
                 //    .withPosition(new Vec3D(10, 10, 6))
              //   .withPosition(new Vec3D(25, 8., 5.))
-                .withPosition(new Vec3D(0., 0., 0.))
+                .withPosition(new Vec3D(0., 0., 1.))
           //      .withAzimuth(5.f * Math.PI)
                 .withAzimuth(0.5f * Math.PI)
+           //     .withAzimuth(0.45)
           //      .withZenith(-1 / 30f * Math.PI);
                 .withZenith(-1/2f * Math.PI);
+           //    .withZenith(0.45);
 
         persp = new Mat4PerspRH(
                 Math.PI / 3f,
@@ -218,7 +220,9 @@ public class Renderer extends p01simple.AbstractRenderer {
             textureBricksn = new OGLTexture2D("./textures/bricksn.png");
             textureMosaic = new OGLTexture2D("./textures/mosaic.jpg");
             texturePavement = new OGLTexture2D("./pavementHigh.jpg");
-            textureSky = new lwjglutils.OGLTextureCube(new String[]{"./textures/skyBox_right.jpg","./textures/skyBox_left.jpg","./textures/skyBox_top.jpg","./textures/skyBox_bottom.jpg",
+            textureSky = new lwjglutils.OGLTextureCube(new String[]{"./textures/yokohama/right.jpg","./textures/yokohama/left.jpg","./textures/yokohama/top.jpg","./textures/yokohama/bottom.jpg",
+                    "./textures/yokohama/front.jpg","./textures/yokohama/back.jpg"});
+            textureSky1 = new lwjglutils.OGLTextureCube(new String[]{"./textures/skyBox_right.jpg","./textures/skyBox_left.jpg","./textures/skyBox_top.jpg","./textures/skyBox_bottom.jpg",
                     "./textures/skyBox_front.jpg","./textures/skyBox_back.jpg"});
         } catch (IOException e) {
             e.printStackTrace();
@@ -269,8 +273,8 @@ public class Renderer extends p01simple.AbstractRenderer {
         glUniform1i(surfaceCA1,surface);
         glUniform1i(reflectorCA1,reflector);
         glUniform1f(reflectorCA1Angle,rAngle);
-        textureFire.bind(shaderProgramCASolid1,"textureFire",0);
-
+     //   textureFire.bind(shaderProgramCASolid1,"textureFire",0);
+        textureSky.bind(shaderProgramCASolid1,"textureSky",0);
         if(projection == 1 ){
             glUniformMatrix4fv(projectionLocationCASolid1 , false,persp.floatArray());}
         else if(projection == 2){
@@ -364,7 +368,8 @@ public class Renderer extends p01simple.AbstractRenderer {
         glUniform1i(surfaceSP1,surface);
         glUniform1i(reflectorSP1,reflector);
         glUniform1f(reflectorSP1Angle,rAngle);
-        texturePavement.bind(shaderProgramSPSolid1,"texturePavement",0);
+    //    texturePavement.bind(shaderProgramSPSolid1,"texturePavement",0);
+        textureSky.bind(shaderProgramSPSolid1,"textureSky",0);
 
         if(projection == 1 ){
             glUniformMatrix4fv(projectionLocationSPSolid1 , false,persp.floatArray());}
@@ -461,22 +466,22 @@ if (anim == 1) {
                         else {wire  = 1;}
                         break;
                   case GLFW_KEY_W:
-                        camera = camera.forward(1);
+                        camera = camera.forward(0.1);
                         break;
                     case GLFW_KEY_D:
-                        camera = camera.right(1);
+                        camera = camera.right(0.1);
                         break;
                     case GLFW_KEY_S:
-                        camera = camera.backward(1);
+                        camera = camera.backward(0.1);
                         break;
                     case GLFW_KEY_A:
-                        camera = camera.left(1);
+                        camera = camera.left(0.1);
                         break;
                     case GLFW_KEY_LEFT_CONTROL:
-                        camera = camera.down(1);
+                        camera = camera.down(0.1);
                         break;
                     case GLFW_KEY_LEFT_SHIFT:
-                        camera = camera.up(1);
+                        camera = camera.up(0.1);
                         break;
                     case GLFW_KEY_SPACE:
                         camera = camera.withFirstPerson(!camera.getFirstPerson());

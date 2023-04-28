@@ -31,7 +31,7 @@ vec3 getCASolid1(vec2 vec){
 void main() {
 
     position = inPosition * 2 -1;
-    finalPosition = vec3(getCASolid1(position))*5;
+    finalPosition = vec3(getCASolid1(position*0.1));
     normala = getNormal(position);
     normala = mat3(transpose(inverse(mat3(viewCASolid1 * scaleMCASolid1 * rotateMCASolid1)))) * normala;
     texCoord = inPosition;
@@ -39,7 +39,6 @@ void main() {
 
      lightPositionView = normalize(viewCASolid1 * vec4(lightCASolid1,0.));
      viewPos = normalize(viewCASolid1 *  pos4);
-
 
     gl_Position = projectionCASolid1 * viewCASolid1 * scaleMCASolid1 * rotateMCASolid1 * pos4;
     outPosition = pos4;

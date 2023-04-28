@@ -10,7 +10,8 @@ uniform vec3 lightCASolid1;
 uniform vec3 lightAmbCA1;
 uniform vec3 viewPositionCASolid1;
 uniform vec3 rMoveXY;
-uniform sampler2D textureFire;
+//uniform sampler2D textureFire;
+uniform samplerCube textureSky;
 uniform int phongPartsCA1;
 uniform int reflectorCA1;
 uniform float reflectorCA1Angle;
@@ -21,8 +22,12 @@ float theta;
 
 void main() {
     vec4 position = normalize(outPosition);
-    vec4 textureFire = texture(textureFire, texCoord);
+ //   vec4 textureFire = texture(textureFire, texCoord);
     vec3 nNormala = normalize(normala);
+
+    vec3 viewVec = normalize(position.xyz - viewPos.xyz);
+    vec3 textureVec = reflect(-viewVec, nNormala);
+    vec4 textureS = texture(textureSky, textureVec);
 
     float specularStrength = 0.9;
     vec3 viewDir = (viewPos.xyz - position.xyz);
@@ -49,13 +54,13 @@ void main() {
 
         if (reflectorCA1 == 0) {
             if (phongPartsCA1 == 0) {
-            res = attenuation * (ambient + diffuse + specular) * vec3(textureFire.xyz);
+            res = attenuation * (ambient + diffuse + specular) * vec3(textureS.xyz);
             }else if(phongPartsCA1 == 1) {
-                res = (ambient) * vec3(textureFire.xyz);
+                res = (ambient) * vec3(textureS.xyz);
             }else if(phongPartsCA1 == 2) {
-                res = (diffuse) * vec3(textureFire.xyz);
+                res = (diffuse) * vec3(textureS.xyz);
             }else if(phongPartsCA1 == 3) {
-                res = (specular) * vec3(textureFire.xyz);
+                res = (specular) * vec3(textureS.xyz);
             }
             outColor = vec4(res,1.0f);
                                 }
@@ -65,11 +70,11 @@ void main() {
             {
                 diffuse *= intensity;
                 specular *= intensity;
-                res = attenuation * (ambient + diffuse + specular) * vec3(textureFire.xyz);
+                res = attenuation * (ambient + diffuse + specular) * vec3(textureS.xyz);
             } else
             {
 
-                res = (ambient) * vec3(textureFire.xyz);
+                res = (ambient) * vec3(textureS.xyz);
             }
             outColor = vec4(res, 1.0f);
         }
@@ -129,7 +134,8 @@ void main() {
             break;
 
         case  7: //test
-         //   outColor =  vec4(rMoveXY*20,1.0f);
+       outColor = vec4((attenuation * (ambient + diffuse + specular) * vec3(textureS.xyz)),1.0f);
+     //   outColor = textureS;
             break;
     }
 }
