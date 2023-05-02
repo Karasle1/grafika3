@@ -13,6 +13,8 @@ uniform sampler2D textureBricksn;
 uniform int phongPartsCA2;
 uniform int reflectorCA2;
 uniform int nMapingCA2;
+uniform samplerCube textureSky;
+uniform int eMapCA2;
 in float typeShape;
 out vec4 outColor; // output from the fragment shader
 vec3 res;
@@ -30,6 +32,7 @@ void main() {
     }else {
       nNormala = normalize(normala);
         };
+
     float specularStrength = 0.5;
     vec3 viewDir = (viewPos.xyz - position.xyz);
     vec3 reflectDir = reflect(lightPositionView.xyz, nNormala);
@@ -49,6 +52,16 @@ void main() {
     //rozmaznuti okraju
     float epsilon   = cutOff - cutOffOut;
     float intensity = clamp((theta - cutOffOut) / epsilon, 0.0, 1.0);
+    // zrcadlo
+    vec3 viewVec = normalize(position.xyz - viewPos.xyz);
+    vec3 textureVec = reflect(-viewVec, nNormala);
+    vec4 textureReflection = texture(textureSky, textureVec);
+
+    // refrakce
+    float ratio = 1.00 / 1.52;
+    vec3 R = refract(viewVec, nNormala, ratio);
+    vec4 textureRefraction = texture(textureSky, R);
+
 
     switch(surfaceCA2) {
         case 0:  //textura
@@ -134,8 +147,12 @@ void main() {
             outColor =  vec4(dist,dist,dist,1.f);
             break;
 
-        case  7: //test
-         //   outColor =  vec4(nMapingCA2*20,0.f,0.f,1.0f);
+        case  7: //env Mapping
+            if (eMapCA2 == 0){
+                outColor = vec4((attenuation * (ambient + diffuse + specular) * vec3(textureReflection.xyz)),1.0f);
+            }else {
+                outColor = vec4((attenuation * (ambient + diffuse + specular) * vec3(textureRefraction.xyz)), 1.0f);
+            }
             break;
     }
 }

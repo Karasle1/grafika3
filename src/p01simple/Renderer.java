@@ -30,27 +30,27 @@ import org.lwjgl.glfw.GLFWMouseButtonCallback;
  */
 public class Renderer extends p01simple.AbstractRenderer {
     private OGLBuffers buffers,
-            buffersSPSolid1,buffersSPSolid2,buffersCLSolid1,buffersCLSolid2,buffersCASolid1,buffersCASolid2,buffersSky;
-    private int viewLocation, viewLocationSPSolid1,viewLocationSPSolid2,viewLocationCLSolid1,
-            viewLocationCLSolid2,viewLocationCASolid1,viewLocationCASolid2,
-            viewPositionSPSolid1,viewPositionSPSolid2,viewPositionCLSolid1,
-            viewPositionCLSolid2,viewPositionCASolid1,viewPositionCASolid2,
-            lightLocation, lightLocationSPSolid1,lightLocationSPSolid2,lightLocationCLSolid1,
-            lightLocationCLSolid2,lightLocationCASolid1,lightLocationCASolid2,
-            projectionLocation,projectionLocationSPSolid1,projectionLocationSPSolid2,projectionLocationCLSolid1,
-            projectionLocationCLSolid2,projectionLocationCASolid1,projectionLocationCASolid2,
+            buffersSPSolid1,buffersCASolid1,buffersCASolid2,buffersSky;
+    private int viewLocation, viewLocationSPSolid1,viewLocationCASolid2, viewLocationCASolid1,
+            viewPositionSPSolid1, viewPositionCASolid1,viewPositionCASolid2,
+            lightLocation, lightLocationSPSolid1,lightLocationCASolid2,
+          lightLocationCASolid1,
+            projectionLocation,projectionLocationSPSolid1,projectionLocationCASolid2,
+        projectionLocationCASolid1,
             shaderProgramMain,
-            shaderProgramSPSolid1,shaderProgramSPSolid2,shaderProgramCLSolid1,shaderProgramCLSolid2,shaderProgramCASolid1,
-            shaderProgramCASolid2,
+            shaderProgramSPSolid1,shaderProgramCASolid1,shaderProgramCASolid2,
 
-            phongParts=0, projection = 1,nMaping=0,SPSolid1,SPSolid2,CLSolid1, CLSolid2,CASolid1,CASolid2,reflector=0,
-                    phongPartsCA1,phongPartsCA2,phongPartsCL1,phongPartsCL2,phongPartsSP1,phongPartsSP2,nMapingCA2,
-                    lightAmbCA1,lightAmbCA2,lightAmbSP1,lightAmbSP2,lightAmbCL1,lightAmbCL2,
-            lightPos = 1,surface,surfaceCA1=0,surfaceCA2=0,surfaceCL1=0,surfaceCL2=0,surfaceSP1=0,surfaceSP2=0,rMoveXY,
-            scaleMSPSolid1,scaleMSPSolid2,scaleMCLSolid1,scaleMCLSolid2,scaleMCASolid1,scaleMCASolid2,
-            rotateMSPSolid1,rotateMSPSolid2,rotateMCLSolid1,rotateMCLSolid2,rotateMCASolid1,rotateMCASolid2,
-    reflectorCA1,reflectorCA1Angle,reflectorCA2,reflectorCA2Angle,reflectorCL1,reflectorCL1Angle,reflectorCL2,reflectorCL2Angle,
-                    reflectorSP1,reflectorSP1Angle,reflectorSP2,reflectorSP2Angle;
+
+            phongParts=0, projection = 1,nMaping=0,CASolid1,CASolid2,reflector=0,
+                    phongPartsCA1,phongPartsCA2,phongPartsSP1,
+                    lightAmbCA1,lightAmbCA2,lightAmbSP1,
+            lightPos = 1,surface,surfaceCA1=0,surfaceCA2=0,surfaceSP1=0,rMoveXY,
+            scaleMSPSolid1,scaleMCASolid2,scaleMCASolid1,
+            rotateMSPSolid1,rotateMCASolid2,rotateMCASolid1,
+
+    reflectorCA1,reflectorCA1Angle,reflectorCA2,reflectorCA2Angle,
+                    reflectorSP1,reflectorSP1Angle,
+            eMapCA1,eMapCA2,eMapSP1;
 
     private Camera camera;
     private Mat4PerspRH persp;
@@ -62,7 +62,7 @@ public class Renderer extends p01simple.AbstractRenderer {
     private boolean mousePressed;
     private double oldMx, oldMy, ofst,oldMxR, oldMyR;
 
-    int anim = 0, wire = 0;
+    int anim = 0, wire = 0, eMap = 0;
     float  time=1f,rAngle=0.f;
     double scale = 1;
     private OGLTexture2D textureFire, textureBricks,textureMosaic,texturePavement,textureBricksn;
@@ -82,101 +82,62 @@ public class Renderer extends p01simple.AbstractRenderer {
 
         shaderProgramMain = ShaderUtils.loadProgram("/main");
         shaderProgramSPSolid1 = ShaderUtils.loadProgram("/SPSolid1");
-        shaderProgramSPSolid2 = ShaderUtils.loadProgram("/SPSolid2");
-        shaderProgramCLSolid1 = ShaderUtils.loadProgram("/CLSolid1");
-        shaderProgramCLSolid2 = ShaderUtils.loadProgram("/CLSolid2");
         shaderProgramCASolid1 = ShaderUtils.loadProgram("/CASolid1");
         shaderProgramCASolid2 = ShaderUtils.loadProgram("/CASolid2");
 
+
         viewLocation = glGetUniformLocation(shaderProgramMain, "view");
         viewLocationSPSolid1= glGetUniformLocation(shaderProgramSPSolid1, "viewSPSolid1");
-        viewLocationSPSolid2= glGetUniformLocation(shaderProgramSPSolid2, "viewSPSolid2");
-        viewLocationCLSolid1= glGetUniformLocation(shaderProgramCLSolid1, "viewCLSolid1");
-        viewLocationCLSolid2= glGetUniformLocation(shaderProgramCLSolid2, "viewCLSolid2");
         viewLocationCASolid1= glGetUniformLocation(shaderProgramCASolid1, "viewCASolid1");
         viewLocationCASolid2= glGetUniformLocation(shaderProgramCASolid2, "viewCASolid2");
 
+
         viewPositionSPSolid1= glGetUniformLocation(shaderProgramSPSolid1, "viewPositionSPSolid1");
-        viewPositionSPSolid2= glGetUniformLocation(shaderProgramSPSolid2, "viewPositionSPSolid2");
-        viewPositionCLSolid1= glGetUniformLocation(shaderProgramCLSolid1, "viewPositionCLSolid1");
-        viewPositionCLSolid2= glGetUniformLocation(shaderProgramCLSolid2, "viewPositionCLSolid2");
         viewPositionCASolid1= glGetUniformLocation(shaderProgramCASolid1, "viewPositionCASolid1");
         viewPositionCASolid2= glGetUniformLocation(shaderProgramCASolid2, "viewPositionCASolid2");
 
         lightLocation = glGetUniformLocation(shaderProgramMain, "light");
         lightLocationSPSolid1= glGetUniformLocation(shaderProgramSPSolid1, "lightSPSolid1");
-        lightLocationSPSolid2= glGetUniformLocation(shaderProgramSPSolid2, "lightSPSolid2");
-        lightLocationCLSolid1= glGetUniformLocation(shaderProgramCLSolid1, "lightCLSolid1");
-        lightLocationCLSolid2= glGetUniformLocation(shaderProgramCLSolid2, "lightCLSolid2");
         lightLocationCASolid1= glGetUniformLocation(shaderProgramCASolid1, "lightCASolid1");
         lightLocationCASolid2= glGetUniformLocation(shaderProgramCASolid2, "lightCASolid2");
 
-
-
         projectionLocation = glGetUniformLocation(shaderProgramMain, "projection");
         projectionLocationSPSolid1 = glGetUniformLocation(shaderProgramSPSolid1, "projectionSPSolid1");
-        projectionLocationSPSolid2 = glGetUniformLocation(shaderProgramSPSolid2, "projectionSPSolid2");
-        projectionLocationCLSolid1 = glGetUniformLocation(shaderProgramCLSolid1, "projectionCLSolid1");
-        projectionLocationCLSolid2 = glGetUniformLocation(shaderProgramCLSolid2, "projectionCLSolid2");
         projectionLocationCASolid1 = glGetUniformLocation(shaderProgramCASolid1, "projectionCASolid1");
         projectionLocationCASolid2 = glGetUniformLocation(shaderProgramCASolid2, "projectionCASolid2");
 
-
         scaleMSPSolid1 = glGetUniformLocation(shaderProgramSPSolid1, "scaleMSPSolid1");
-        scaleMSPSolid2 = glGetUniformLocation(shaderProgramSPSolid2, "scaleMSPSolid2");
-        scaleMCLSolid1 = glGetUniformLocation(shaderProgramCLSolid1, "scaleMCLSolid1");
-        scaleMCLSolid2 = glGetUniformLocation(shaderProgramCLSolid2, "scaleMCLSolid2");
         scaleMCASolid1 = glGetUniformLocation(shaderProgramCASolid1, "scaleMCASolid1");
         scaleMCASolid2 = glGetUniformLocation(shaderProgramCASolid2, "scaleMCASolid2");
 
         rotateMSPSolid1 = glGetUniformLocation(shaderProgramSPSolid1, "rotateMSPSolid1");
-        rotateMSPSolid2 = glGetUniformLocation(shaderProgramSPSolid2, "rotateMSPSolid2");
-        rotateMCLSolid1 = glGetUniformLocation(shaderProgramCLSolid1, "rotateMCLSolid1");
-        rotateMCLSolid2 = glGetUniformLocation(shaderProgramCLSolid2, "rotateMCLSolid2");
         rotateMCASolid1 = glGetUniformLocation(shaderProgramCASolid1, "rotateMCASolid1");
         rotateMCASolid2 = glGetUniformLocation(shaderProgramCASolid2, "rotateMCASolid2");
 
-
-
         surfaceCA1 = glGetUniformLocation(shaderProgramCASolid1, "surfaceCA1");
         surfaceCA2 = glGetUniformLocation(shaderProgramCASolid2, "surfaceCA2");
-        surfaceCL1 = glGetUniformLocation(shaderProgramCLSolid1, "surfaceCL1");
-        surfaceCL2 = glGetUniformLocation(shaderProgramCLSolid2, "surfaceCL2");
         surfaceSP1 = glGetUniformLocation(shaderProgramSPSolid1, "surfaceSP1");
-        surfaceSP2 = glGetUniformLocation(shaderProgramSPSolid2, "surfaceSP2");
 
         lightAmbCA1 = glGetUniformLocation(shaderProgramCASolid1, "lightAmbCA1");
         lightAmbCA2 = glGetUniformLocation(shaderProgramCASolid2, "lightAmbCA2");
-        lightAmbCL1 = glGetUniformLocation(shaderProgramCLSolid1, "lightAmbCL1");
-        lightAmbCL2 = glGetUniformLocation(shaderProgramCLSolid2, "lightAmbCL2");
         lightAmbSP1 = glGetUniformLocation(shaderProgramSPSolid1, "lightAmbSP1");
-        lightAmbSP2 = glGetUniformLocation(shaderProgramSPSolid2, "lightAmbSP2");
-
+;
         phongPartsCA1 = glGetUniformLocation(shaderProgramCASolid1, "phongPartsCA1");
         phongPartsCA2 = glGetUniformLocation(shaderProgramCASolid2, "phongPartsCA2");
-        phongPartsCL1 = glGetUniformLocation(shaderProgramCLSolid1, "phongPartsCL1");
-        phongPartsCL2 = glGetUniformLocation(shaderProgramCLSolid2, "phongPartsCL2");
         phongPartsSP1 = glGetUniformLocation(shaderProgramSPSolid1, "phongPartsP1");
-        phongPartsSP2 = glGetUniformLocation(shaderProgramSPSolid2, "phongPartsSP2");
 
         reflectorCA1 = glGetUniformLocation(shaderProgramCASolid1, "reflectorCA1");
         reflectorCA1Angle = glGetUniformLocation(shaderProgramCASolid1, "reflectorCA1Angle");
         reflectorCA2 = glGetUniformLocation(shaderProgramCASolid2, "reflectorCA2");
         reflectorCA2Angle = glGetUniformLocation(shaderProgramCASolid2, "reflectorCA2Angle");
-        reflectorCL1 = glGetUniformLocation(shaderProgramCLSolid1, "reflectorCL1");
-        reflectorCL1Angle = glGetUniformLocation(shaderProgramCLSolid1, "reflectorCL1Angle");
-        reflectorCL2 = glGetUniformLocation(shaderProgramCLSolid2, "reflectorCL2");
-        reflectorCL2Angle = glGetUniformLocation(shaderProgramCLSolid2, "reflectorCL2Angle");
         reflectorSP1 = glGetUniformLocation(shaderProgramSPSolid1, "reflectorSP1");
         reflectorSP1Angle = glGetUniformLocation(shaderProgramSPSolid1, "reflectorSP1Angle");
-        reflectorSP2 = glGetUniformLocation(shaderProgramSPSolid2, "reflectorSP2");
-        reflectorSP2Angle = glGetUniformLocation(shaderProgramSPSolid2, "reflectorSP2Angle");
 
-
-        nMapingCA2 = glGetUniformLocation(shaderProgramCASolid2, "nMapingCA2");
+        eMapCA1 = glGetUniformLocation(shaderProgramCASolid1, "eMapCA1");
+        eMapCA2 = glGetUniformLocation(shaderProgramCASolid2, "eMapCA2");
+        eMapSP1 = glGetUniformLocation(shaderProgramSPSolid1, "eMapSP1");
 
         rMoveXY = glGetUniformLocation(shaderProgramCASolid1, "rMoveXY");
-
 
         camera = new Camera()
                 //    .withPosition(new Vec3D(10, 10, 6))
@@ -208,18 +169,10 @@ public class Renderer extends p01simple.AbstractRenderer {
         buffers = p01simple.GridFactory.generateGrid(100,100);
         buffersSky = p01simple.GridFactory.generateSkybox();
         buffersSPSolid1 = p01simple.GridFactory.generateGrid(100,100);
-        buffersSPSolid2 = p01simple.GridFactory.generateGrid(100,100);
-        buffersCLSolid1 = p01simple.GridFactory.generateGrid(100,100);
-        buffersCLSolid2 = p01simple.GridFactory.generateGrid(100,100);
         buffersCASolid1 = p01simple.GridFactory.generateGrid(100,100);
         buffersCASolid2 = p01simple.GridFactory.generateGrid(100,100);
 
         try {
-            textureFire = new OGLTexture2D("./textures/mapFire.jpg");
-            textureBricks = new OGLTexture2D("./textures/bricks.jpg");
-            textureBricksn = new OGLTexture2D("./textures/bricksn.png");
-            textureMosaic = new OGLTexture2D("./textures/mosaic.jpg");
-            texturePavement = new OGLTexture2D("./pavementHigh.jpg");
             textureSky = new lwjglutils.OGLTextureCube(new String[]{"./textures/yokohama/right.jpg","./textures/yokohama/left.jpg","./textures/yokohama/top.jpg","./textures/yokohama/bottom.jpg",
                     "./textures/yokohama/front.jpg","./textures/yokohama/back.jpg"});
             textureSky1 = new lwjglutils.OGLTextureCube(new String[]{"./textures/skyBox_right.jpg","./textures/skyBox_left.jpg","./textures/skyBox_top.jpg","./textures/skyBox_bottom.jpg",
@@ -251,16 +204,12 @@ public class Renderer extends p01simple.AbstractRenderer {
         Rmove = new Vec3D(oldMxR,oldMyR,0.f);
 
         //////////////////sharder Main
-
         glUseProgram(shaderProgramMain);
-
         if(projection == 1 ){
             glUniformMatrix4fv(projectionLocation, false,persp.floatArray());}
         else if(projection == 2){
             glUniformMatrix4fv(projectionLocation, false,ortho.floatArray());}
-
         textureSky.bind(shaderProgramMain,"textureSky",0);
-
         glUniformMatrix4fv(viewLocation,false, camera.getViewMatrix().floatArray());
         glUniform3f (lightLocation,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
      //   buffers.draw(GL_TRIANGLES, shaderProgramMain);
@@ -271,9 +220,9 @@ public class Renderer extends p01simple.AbstractRenderer {
 
         glUniform1i(phongPartsCA1,phongParts);
         glUniform1i(surfaceCA1,surface);
+        glUniform1i(eMapCA1,eMap);
         glUniform1i(reflectorCA1,reflector);
         glUniform1f(reflectorCA1Angle,rAngle);
-     //   textureFire.bind(shaderProgramCASolid1,"textureFire",0);
         textureSky.bind(shaderProgramCASolid1,"textureSky",0);
         if(projection == 1 ){
             glUniformMatrix4fv(projectionLocationCASolid1 , false,persp.floatArray());}
@@ -297,10 +246,9 @@ public class Renderer extends p01simple.AbstractRenderer {
         glUniform1i(phongPartsCA2,phongParts);
         glUniform1i(surfaceCA2,surface);
         glUniform1i(reflectorCA2,reflector);
+        glUniform1i(eMapCA2,eMap);
         glUniform1f(reflectorCA2Angle,rAngle);
-        glUniform1i(nMapingCA2,nMaping);
-        textureBricks.bind(shaderProgramCASolid2,"textureBricks",0);
-        textureBricksn.bind(shaderProgramCASolid2,"textureBricksn",1);
+        textureSky.bind(shaderProgramCASolid2,"textureSky",0);
 
         if(projection == 1 ){
             glUniformMatrix4fv(projectionLocationCASolid2 , false,persp.floatArray());}
@@ -316,60 +264,16 @@ public class Renderer extends p01simple.AbstractRenderer {
         if (CASolid2 == 1){
             buffersCASolid2.draw(GL_TRIANGLES, shaderProgramCASolid2);
         }
-      /////////////////////////////  // shader CLSolid1
-        glUseProgram(shaderProgramCLSolid1);
 
-        glUniform1i(phongPartsCL1,phongParts);
-        glUniform1i(surfaceCL1,surface);
-        glUniform1i(reflectorCL1,reflector);
-        glUniform1f(reflectorCL1Angle,rAngle);
-        textureMosaic.bind(shaderProgramCLSolid1,"textureMosaic",0);
-
-        if(projection == 1 ){
-            glUniformMatrix4fv(projectionLocationCLSolid1 , false,persp.floatArray());}
-        else if(projection == 2){
-            glUniformMatrix4fv(projectionLocationCLSolid1, false,ortho.floatArray());}
-
-        glUniformMatrix4fv(viewLocationCLSolid1,false, camera.getViewMatrix().floatArray());
-        glUniform3f(viewPositionCLSolid1, (float)camera.getPosition().getX(),(float)camera.getPosition().getY(),(float)camera.getPosition().getZ());
-        glUniformMatrix4fv(scaleMCLSolid1,false,scaleMat.floatArray());
-        glUniformMatrix4fv(rotateMCLSolid1,false,rotateMat.floatArray());
-        glUniform3f (lightLocationCLSolid1,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
-        glUniform3f (lightAmbCL1,(float) lightAmbient.getX(),(float) lightAmbient.getY(),(float) lightAmbient.getZ());
-
-        if (CLSolid1 == 1){
-            buffersCLSolid1.draw(GL_TRIANGLES, shaderProgramCLSolid1);
-        }
-        // shader CLSolid2
-        glUseProgram(shaderProgramCLSolid2);
-
-        glUniform1i(phongPartsCL2,phongParts);
-        glUniform1i(surfaceCL2,surface);
-        glUniform1i(reflectorCL2,reflector);
-        glUniform1f(reflectorCL2Angle,rAngle);
-        textureMosaic.bind(shaderProgramCLSolid2,"textureMosaic",0);
-        if(projection == 1 ){
-            glUniformMatrix4fv(projectionLocationCLSolid2 , false,persp.floatArray());}
-        else if(projection == 2){
-            glUniformMatrix4fv(projectionLocationCLSolid2, false,ortho.floatArray());}
-
-        glUniformMatrix4fv(viewLocationCLSolid2,false, camera.getViewMatrix().floatArray());
-        glUniformMatrix4fv(scaleMCLSolid2,false,scaleMat.floatArray());
-        glUniformMatrix4fv(rotateMCLSolid2,false,rotateMat.floatArray());
-        glUniform3f (lightLocationCLSolid2,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
-        glUniform3f (lightAmbCL2,(float) lightAmbient.getX(),(float) lightAmbient.getY(),(float) lightAmbient.getZ());
-        if (CLSolid2 == 1){
-            buffersCLSolid2.draw(GL_TRIANGLES, shaderProgramCLSolid2);
-        }
         ///////////////////////////// shader SPSolid1
        glUseProgram(shaderProgramSPSolid1);
 
         glUniform1i(phongPartsSP1,phongParts);
         glUniform1i(surfaceSP1,surface);
         glUniform1i(reflectorSP1,reflector);
+        glUniform1i(eMapSP1,eMap);
         glUniform1f(reflectorSP1Angle,rAngle);
-    //    texturePavement.bind(shaderProgramSPSolid1,"texturePavement",0);
-        textureSky.bind(shaderProgramSPSolid1,"textureSky",0);
+        textureSky.bind(shaderProgramSPSolid1,"textureSky",1);
 
         if(projection == 1 ){
             glUniformMatrix4fv(projectionLocationSPSolid1 , false,persp.floatArray());}
@@ -383,28 +287,6 @@ public class Renderer extends p01simple.AbstractRenderer {
         glUniform3f (lightAmbSP1,(float) lightAmbient.getX(),(float) lightAmbient.getY(),(float) lightAmbient.getZ());
         if (SPSolid1 == 1){
             buffersSPSolid1.draw(GL_TRIANGLES, shaderProgramSPSolid1);
-        }
-
-       /////////////////////// shader SPSolid2
-        glUseProgram(shaderProgramSPSolid2);
-
-        glUniform1i(phongPartsSP2,phongParts);
-        glUniform1i(surfaceSP2,surface);
-        glUniform1i(reflectorSP2,reflector);
-        glUniform1f(reflectorSP2Angle,rAngle);
-        textureFire.bind(shaderProgramSPSolid2,"textureFire",0);
-
-        if(projection == 1 ){
-            glUniformMatrix4fv(projectionLocationSPSolid2 , false,persp.floatArray());}
-        else if(projection == 2){
-            glUniformMatrix4fv(projectionLocationSPSolid2, false,ortho.floatArray());}
-        glUniformMatrix4fv(scaleMSPSolid2,false,scaleMat.floatArray());
-        glUniformMatrix4fv(rotateMSPSolid2,false,rotateMat.floatArray());
-        glUniformMatrix4fv(viewLocationSPSolid2,false, camera.getViewMatrix().floatArray());
-        glUniform3f (lightLocationSPSolid2,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
-        glUniform3f (lightAmbSP2,(float) lightAmbient.getX(),(float) lightAmbient.getY(),(float) lightAmbient.getZ());
-        if (SPSolid2 == 1){
-            buffersSPSolid2.draw(GL_TRIANGLES, shaderProgramSPSolid2);
         }
 
 if (anim == 1) {
@@ -564,30 +446,20 @@ if (anim == 1) {
                         else {CASolid2  = 1;}
                         break;
                     case GLFW_KEY_3:
-                        if (CLSolid1 == 1){
-                            CLSolid1 = 0;}
-                        else {CLSolid1  = 1;}
-                        break;
-                    case GLFW_KEY_4:
-                        if (CLSolid2 == 1){
-                            CLSolid2 = 0;}
-                        else {CLSolid2  = 1;}
-                        break;
-                    case GLFW_KEY_5:
                         if (SPSolid1 == 1){
                             SPSolid1 = 0;}
                         else {SPSolid1  = 1;}
-                        break;
-                    case GLFW_KEY_6:
-                        if (SPSolid2 == 1){
-                            SPSolid2  = 0;}
-                        else {SPSolid2   = 1;}
                         break;
                     case GLFW_KEY_KP_SUBTRACT:
                        rAngle = rAngle - 1;
                         break;
                     case GLFW_KEY_KP_ADD:
                        rAngle = rAngle + 1;
+                        break;
+                    case GLFW_KEY_KP_MULTIPLY:
+                        if (eMap == 1){
+                            eMap  = 0;}
+                        else {eMap   = 1;}
                         break;
 
                     case GLFW_KEY_KP_8:

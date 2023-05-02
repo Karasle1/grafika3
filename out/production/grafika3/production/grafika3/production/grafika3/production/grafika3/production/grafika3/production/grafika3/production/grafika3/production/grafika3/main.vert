@@ -26,7 +26,7 @@ float PI = 3.14159;
 
 void main() {
 
-	finalPosition = inPosition*2-1;
+	finalPosition = (inPosition*2-1);
 	texCoord = finalPosition;
 //	vec4 pos4 = vec4(finalPosition +  light,1.0);
 	vec4 pos4 = vec4(finalPosition,1.0);

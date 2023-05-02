@@ -15,6 +15,7 @@ uniform samplerCube textureSky;
 uniform int phongPartsCA1;
 uniform int reflectorCA1;
 uniform float reflectorCA1Angle;
+uniform int eMapCA1;
 
 out vec4 outColor; // output from the fragment shader
 vec3 res;
@@ -24,10 +25,6 @@ void main() {
     vec4 position = normalize(outPosition);
  //   vec4 textureFire = texture(textureFire, texCoord);
     vec3 nNormala = normalize(normala);
-
-    vec3 viewVec = normalize(position.xyz - viewPos.xyz);
-    vec3 textureVec = reflect(-viewVec, nNormala);
-    vec4 textureS = texture(textureSky, textureVec);
 
     float specularStrength = 0.9;
     vec3 viewDir = (viewPos.xyz - position.xyz);
@@ -49,18 +46,29 @@ void main() {
     float epsilon   = cutOff - cutOffOut;
     float intensity = clamp((theta - cutOffOut) / epsilon, 0.0, 1.0);
 
+    // zrcadlo
+    vec3 viewVec = normalize(position.xyz - viewPositionCASolid1.xyz);
+    vec3 textureVec = reflect(-viewDir, nNormala);
+    vec4 textureReflection = texture(textureSky, textureVec);
+
+    // refrakce
+        float ratio = 1.00 / 1.52;
+        vec3 R = refract(viewVec, nNormala, ratio);
+        vec4 textureRefraction = texture(textureSky, R);
+
+
     switch(surfaceCA1) {
         case 0:  //textura
 
         if (reflectorCA1 == 0) {
             if (phongPartsCA1 == 0) {
-            res = attenuation * (ambient + diffuse + specular) * vec3(textureS.xyz);
+            res = attenuation * (ambient + diffuse + specular) * vec3(textureReflection.xyz);
             }else if(phongPartsCA1 == 1) {
-                res = (ambient) * vec3(textureS.xyz);
+                res = (ambient) * vec3(textureReflection.xyz);
             }else if(phongPartsCA1 == 2) {
-                res = (diffuse) * vec3(textureS.xyz);
+                res = (diffuse) * vec3(textureReflection.xyz);
             }else if(phongPartsCA1 == 3) {
-                res = (specular) * vec3(textureS.xyz);
+                res = (specular) * vec3(textureReflection.xyz);
             }
             outColor = vec4(res,1.0f);
                                 }
@@ -70,11 +78,11 @@ void main() {
             {
                 diffuse *= intensity;
                 specular *= intensity;
-                res = attenuation * (ambient + diffuse + specular) * vec3(textureS.xyz);
+                res = attenuation * (ambient + diffuse + specular) * vec3(textureReflection.xyz);
             } else
             {
 
-                res = (ambient) * vec3(textureS.xyz);
+                res = (ambient) * vec3(textureReflection.xyz);
             }
             outColor = vec4(res, 1.0f);
         }
@@ -134,7 +142,11 @@ void main() {
             break;
 
         case  7: //test
-       outColor = vec4((attenuation * (ambient + diffuse + specular) * vec3(textureS.xyz)),1.0f);
+        if (eMapCA1 == 0){
+            outColor = vec4((attenuation * (ambient + diffuse + specular) * vec3(textureReflection.xyz)),1.0f);
+        }else {
+            outColor = vec4((attenuation * (ambient + diffuse + specular) * vec3(textureRefraction.xyz)), 1.0f);
+        }
      //   outColor = textureS;
             break;
     }

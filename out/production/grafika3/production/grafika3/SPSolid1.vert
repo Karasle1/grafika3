@@ -56,6 +56,6 @@ void main() {
 
 
     gl_Position = projectionSPSolid1 * viewSPSolid1 * scaleMSPSolid1 * rotateMSPSolid1 * pos4;
-    outPosition = pos4;
+    outPosition = scaleMSPSolid1 * rotateMSPSolid1 * pos4;
 
 }

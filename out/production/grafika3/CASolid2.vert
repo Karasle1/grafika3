@@ -29,7 +29,7 @@ vec3 getCASolid2(vec2 vec){
 
 void main() {
     position = inPosition * 2 -1;
-    finalPosition = vec3(getCASolid2(position));
+    finalPosition = vec3(getCASolid2(position*0.1));
     texCoord = inPosition;
     normala = getNormal(position);
     normala = mat3(transpose(inverse(viewCASolid2 * scaleMCASolid2 * rotateMCASolid2))) * normala;
