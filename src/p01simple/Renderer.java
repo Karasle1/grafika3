@@ -41,7 +41,7 @@ public class Renderer extends p01simple.AbstractRenderer {
             shaderProgramSPSolid1,shaderProgramCASolid1,shaderProgramCASolid2,
 
 
-            phongParts=0, projection = 1,nMaping=0,CASolid1,CASolid2,reflector=0,
+            phongParts=0, projection = 1,nMaping=0,CASolid1,CASolid2,SPSolid1,reflector=0,
                     phongPartsCA1,phongPartsCA2,phongPartsSP1,
                     lightAmbCA1,lightAmbCA2,lightAmbSP1,
             lightPos = 1,surface,surfaceCA1=0,surfaceCA2=0,surfaceSP1=0,rMoveXY,
@@ -63,9 +63,9 @@ public class Renderer extends p01simple.AbstractRenderer {
     private double oldMx, oldMy, ofst,oldMxR, oldMyR;
 
     int anim = 0, wire = 0, eMap = 0;
-    float  time=1f,rAngle=0.f;
+    float  rAngle=0.f;
     double scale = 1;
-    private OGLTexture2D textureFire, textureBricks,textureMosaic,texturePavement,textureBricksn;
+
     private lwjglutils.OGLTextureCube textureSky,textureSky1;
     private Mat4OrthoRH ortho;
 
