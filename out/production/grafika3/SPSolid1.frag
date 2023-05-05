@@ -8,7 +8,7 @@ uniform int surfaceSP1;
 uniform vec3 lightSPSolid1;
 uniform vec3 lightAmbSP1;
 uniform vec3 viewPositionSPSolid1;
-//uniform sampler2D texturePavement;
+uniform sampler2D texturePavement;
 uniform samplerCube textureSky;
 uniform int phongPartsSP1;
 uniform int reflectorSP1;
@@ -20,12 +20,8 @@ float theta;
 
 void main() {
     vec4 position = normalize(outPosition);
- //   vec4 texturePavement = texture(texturePavement, texCoord);
+   vec4 texturePavement = texture(texturePavement, texCoord);
     vec3 nNormala = normalize(normala);
-    //   nNormala = texture(normalMap, texCoord;
-
-    //   nNormala = normalize(nNormala * 2.0 - 1.0);
-
 
     float specularStrength = 0.5;
     vec3 viewDir = (viewPos.xyz - position.xyz);
@@ -46,27 +42,21 @@ void main() {
     //rozmaznuti okraju
     float epsilon   = cutOff - cutOffOut;
     float intensity = clamp((theta - cutOffOut) / epsilon, 0.0, 1.0);
-    // zrcadlo
-    vec3 viewVec = position.xyz- viewPos.xyz;
-    vec3 textureVec = reflect(viewVec, nNormala);
-    vec4 textureReflection = texture(textureSky, textureVec);
-    // refrakce
-    float ratio = 1.00 / 1.52;
-    vec3 R = refract(viewVec, nNormala, ratio);
-    vec4 textureRefraction = texture(textureSky, R);
+
+
 
     switch(surfaceSP1) {
-        case 0:  //textura
+        case 7:  //textura
 
             if (reflectorSP1 == 0) {
                 if (phongPartsSP1 == 0) {
-                    res = attenuation * (ambient + diffuse + specular) * vec3(textureReflection.xyz);
+                    res = attenuation * (ambient + diffuse + specular) * vec3(texturePavement.xyz);
                 }else if(phongPartsSP1 == 1) {
-                    res = (ambient) * vec3(textureReflection.xyz);
+                    res = (ambient) * vec3(texturePavement.xyz);
                 }else if(phongPartsSP1 == 2) {
-                    res = (diffuse) * vec3(textureReflection.xyz);
+                    res = (diffuse) * vec3(texturePavement.xyz);
                 }else if(phongPartsSP1 == 3) {
-                    res = (specular) * vec3(textureReflection.xyz);
+                    res = (specular) * vec3(texturePavement.xyz);
                 }
                 outColor = vec4(res,1.0f);
             }
@@ -76,11 +66,11 @@ void main() {
                 {
                     diffuse *= intensity;
                     specular *= intensity;
-                    res = attenuation * (ambient + diffuse + specular) * vec3(textureReflection.xyz);
+                    res = attenuation * (ambient + diffuse + specular) * vec3(texturePavement.xyz);
                 } else
                 {
 
-                    res = (ambient) * vec3(textureReflection.xyz);
+                    res = (ambient) * vec3(texturePavement.xyz);
                 }
                 outColor = vec4(res, 1.0f);
             }
@@ -138,15 +128,27 @@ void main() {
             outColor =  vec4(dist,dist,dist,1.f);
             break;
 
-        case  7:
-         //
+        case  0:
 
             if (eMapSP1 == 0){
-                outColor = vec4((attenuation * (ambient + diffuse + specular) * vec3(textureReflection.xyz)),1.0f);
+                vec3 viewVec = position.xyz - viewPositionSPSolid1;
+                if (viewVec.z >0){
+                    viewVec = -viewVec;
+                }
+                vec3 textureVec = reflect(viewVec, nNormala);
+                vec4 textureReflection = texture(textureSky, textureVec);
+             //   outColor = vec4((attenuation * (ambient + diffuse + specular) * vec3(textureReflection.xyz)),1.0f);
+                outColor = textureReflection;
             }else {
-                outColor = vec4((attenuation * (ambient + diffuse + specular) * vec3(textureRefraction.xyz)), 1.0f);
+                vec3 viewVec = vec3(position.xyz) - viewPositionSPSolid1;
+
+                float ratio = 1.00/1.52;
+                vec3 R = refract(viewVec,nNormala, ratio);
+                vec4 textureRefraction = texture(textureSky, R);
+            //    outColor = vec4((attenuation * (ambient + diffuse + specular) * vec3(textureRefraction.xyz)), 1.0f);
+                outColor = textureRefraction;
             }
-         //  outColor = textureS;
+
             break;
     }
 }
