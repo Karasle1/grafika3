@@ -17,6 +17,7 @@ uniform int eMapSP1;
 out vec4 outColor; // output from the fragment shader
 vec3 res;
 float theta;
+float PI = 3.14159;
 
 void main() {
     vec4 position = normalize(outPosition);
@@ -142,7 +143,7 @@ void main() {
             }else {
                 vec3 viewVec = vec3(position.xyz) - viewPositionSPSolid1;
 
-                float ratio = 1.00/1.52;
+                float ratio = -1.00/1.52;
                 vec3 R = refract(viewVec,nNormala, ratio);
                 vec4 textureRefraction = texture(textureSky, R);
             //    outColor = vec4((attenuation * (ambient + diffuse + specular) * vec3(textureRefraction.xyz)), 1.0f);

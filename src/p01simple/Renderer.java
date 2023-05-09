@@ -1,8 +1,7 @@
 package p01simple;
 
-import lwjglutils.*;
 import lwjglutils.OGLBuffers;
-import lwjglutils.OGLTexture2D;
+
 import lwjglutils.OGLUtils;
 import lwjglutils.ShaderUtils;
 import org.lwjgl.glfw.GLFWKeyCallback;
@@ -21,13 +20,6 @@ import static org.lwjgl.opengl.GL20C.*;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 
-
-/**
- *
- * @author PGRF FIM UHK
- * @version 2.0
- * @since 2019-09-02
- */
 public class Renderer extends p01simple.AbstractRenderer {
     private OGLBuffers buffers,
             buffersSPSolid1,buffersSky;
@@ -185,7 +177,6 @@ public class Renderer extends p01simple.AbstractRenderer {
         textureSky.bind(shaderProgramMain,"textureSky",0);
         glUniformMatrix4fv(viewLocation,false, camera.getViewMatrix().floatArray());
         glUniform3f (lightLocation,(float) lightPosition.getX(),(float) lightPosition.getY(),(float) lightPosition.getZ());
-      //  buffers.draw(GL_TRIANGLES, shaderProgramMain);
         buffersSky.draw(GL_TRIANGLES, shaderProgramMain);
 
 

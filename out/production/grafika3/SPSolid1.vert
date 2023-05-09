@@ -18,21 +18,20 @@ vec4 pos4;
 
 vec3 getSPSolid1(vec2 vec){
 
-   float phi =  PI * (vec.x+1)/2;
-    float theta =  PI * vec.y;
+    vec.x = (vec.x+1)/2;
+    vec.x = vec.x * (-1);
+
+{
+    vec.x = vec.x + 0.00001;
+
+}
+   float phi =   PI * vec.x;
+    float theta =  PI * (vec.y);
     float rs = 0.2;
 
     float x = rs * cos(theta) * sin(phi);
     float y = rs * sin(theta) * sin(phi);
     float z = rs * cos(phi);
-
-  //  normala = normalize(vec3(x,y,z));
-
- //   float rsp = sqrt((x*x)+(y*y));
- //   rsp = rsp * (cos(10.0f * theta)+1);
-    //rsp = 3.0 * sqrt((5.0f*theta)+1);
- //   x= sin(theta)*rsp;
- //   y = cos(theta)*rsp;
 
     return vec3(x,y,z);
 }
@@ -45,7 +44,7 @@ vec3 getNormal(vec2 pos) {
 
 void main() {
 
-    position = (inPosition * 2)-1;
+    position = inPosition * 2-1;
     texCoord = inPosition;
     finalPosition = vec3(getSPSolid1(position));
 

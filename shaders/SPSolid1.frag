@@ -17,6 +17,7 @@ uniform int eMapSP1;
 out vec4 outColor; // output from the fragment shader
 vec3 res;
 float theta;
+float PI = 3.14159;
 
 void main() {
     vec4 position = normalize(outPosition);
